@@ -85,9 +85,7 @@
             margin-bottom: 15px;
             cursor: pointer;
             transition: all 0.2s;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            position: relative;
         }
 
         .account-card:hover {
@@ -101,10 +99,78 @@
             background: #f0f4ff;
         }
 
+        .account-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
         .account-info h4 {
             color: #333;
             font-size: 1.3em;
             margin-bottom: 5px;
+        }
+
+        .account-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            font-size: 1.2em;
+            cursor: pointer;
+            padding: 5px;
+            opacity: 0.6;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .delete-btn {
+            color: #f5576c;
+        }
+
+        .goal-btn {
+            color: #667eea;
+        }
+
+        .account-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .goal-info {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 8px;
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 8px;
+            margin: 5px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .goal-text {
+            font-size: 0.8em;
+            color: #999;
+            margin-top: 3px;
         }
 
         .account-balance {
@@ -138,7 +204,7 @@
         /* Action Buttons */
         .action-buttons {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 10px;
             margin: 25px 0;
         }
@@ -160,6 +226,11 @@
 
         .action-btn.withdraw {
             background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .action-btn.transfer {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #333;
         }
 
         .action-btn:hover {
@@ -415,6 +486,9 @@
                 <button class="action-btn withdraw" onclick="showTransactionModal('withdraw')" id="withdrawBtn" disabled>
                     Spend It
                 </button>
+                <button class="action-btn transfer" onclick="showTransferModal()" id="transferBtn" disabled>
+                    Move It
+                </button>
             </div>
 
             <div class="transactions-section">
@@ -484,6 +558,52 @@
         </div>
     </div>
 
+    <!-- Transfer Modal -->
+    <div id="transferModal" class="modal">
+        <div class="modal-content">
+            <h2>Move Money Around</h2>
+            <div class="form-group">
+                <label>From Avatar</label>
+                <select id="transferFrom">
+                    <option value="">Select avatar...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>To Avatar</label>
+                <select id="transferTo">
+                    <option value="">Select avatar...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Amount</label>
+                <input type="number" id="transferAmount" placeholder="0.00" step="0.01">
+            </div>
+            <div class="form-group">
+                <label>Description (optional)</label>
+                <input type="text" id="transferDesc" placeholder="What's this move for?">
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeModal('transferModal')">Cancel</button>
+                <button class="modal-btn primary" onclick="addTransfer()">Transfer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Goal Modal -->
+    <div id="goalModal" class="modal">
+        <div class="modal-content">
+            <h2>Set a Goal</h2>
+            <div class="form-group">
+                <label>Goal Amount</label>
+                <input type="number" id="goalAmount" placeholder="0.00" step="0.01">
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeModal('goalModal')">Cancel</button>
+                <button class="modal-btn primary" onclick="setGoal()">Set Goal</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Data structure - simplified without users
         let accounts = [];
@@ -491,6 +611,7 @@
         let selectedAccount = null;
         let currentTransactionType = null;
         let selectedEmojiValue = '💵';
+        let goalAccountId = null;
 
         // Initialize app
         function init() {
@@ -552,7 +673,8 @@
                 id: Date.now().toString(),
                 name: name,
                 emoji: emoji,
-                balance: balance
+                balance: balance,
+                goal: null
             };
 
             accounts.push(newAccount);
@@ -577,6 +699,59 @@
 
         function selectAccount(accountId) {
             selectedAccount = accountId;
+            updateUI();
+        }
+
+        function deleteAccount(accountId, event) {
+            event.stopPropagation(); // Prevent selecting the account
+            
+            const account = accounts.find(a => a.id === accountId);
+            
+            if (account.balance !== 0) {
+                alert('This avatar gotta be at $0 before you can delete it!');
+                return;
+            }
+
+            if (confirm(`Delete ${account.emoji} ${account.name}?`)) {
+                // Remove account
+                accounts = accounts.filter(a => a.id !== accountId);
+                
+                // Remove associated transactions
+                transactions = transactions.filter(t => t.accountId !== accountId);
+                
+                // Clear selection if deleted
+                if (selectedAccount === accountId) {
+                    selectedAccount = null;
+                }
+                
+                saveData();
+                updateUI();
+            }
+        }
+
+        function showGoalModal(accountId, event) {
+            event.stopPropagation(); // Prevent selecting the account
+            
+            goalAccountId = accountId;
+            const account = accounts.find(a => a.id === accountId);
+            
+            document.getElementById('goalModal').classList.add('active');
+            document.getElementById('goalAmount').value = account.goal || '';
+        }
+
+        function setGoal() {
+            const goalAmount = parseFloat(document.getElementById('goalAmount').value);
+            
+            if (!goalAmount || goalAmount <= 0) {
+                alert('Put in a real goal amount!');
+                return;
+            }
+
+            const account = accounts.find(a => a.id === goalAccountId);
+            account.goal = goalAmount;
+            
+            saveData();
+            closeModal('goalModal');
             updateUI();
         }
 
@@ -629,6 +804,88 @@
             updateUI();
         }
 
+        function showTransferModal() {
+            if (accounts.length < 2) {
+                alert('You need at least 2 avatars to move money around!');
+                return;
+            }
+
+            const fromSelect = document.getElementById('transferFrom');
+            const toSelect = document.getElementById('transferTo');
+            
+            fromSelect.innerHTML = '<option value="">Select avatar...</option>';
+            toSelect.innerHTML = '<option value="">Select avatar...</option>';
+            
+            accounts.forEach(account => {
+                fromSelect.innerHTML += `<option value="${account.id}">${account.emoji} ${account.name} ($${account.balance.toFixed(2)})</option>`;
+                toSelect.innerHTML += `<option value="${account.id}">${account.emoji} ${account.name}</option>`;
+            });
+            
+            document.getElementById('transferAmount').value = '';
+            document.getElementById('transferDesc').value = '';
+            document.getElementById('transferModal').classList.add('active');
+        }
+
+        function addTransfer() {
+            const fromId = document.getElementById('transferFrom').value;
+            const toId = document.getElementById('transferTo').value;
+            const amount = parseFloat(document.getElementById('transferAmount').value);
+            const desc = document.getElementById('transferDesc').value.trim() || 'Move';
+            
+            if (!fromId || !toId) {
+                alert('Pick both avatars, homie!');
+                return;
+            }
+            
+            if (fromId === toId) {
+                alert('Bruh, you can\'t move money to the same avatar!');
+                return;
+            }
+            
+            if (!amount || amount <= 0) {
+                alert('Put in a real amount!');
+                return;
+            }
+
+            const fromAccount = accounts.find(a => a.id === fromId);
+            const toAccount = accounts.find(a => a.id === toId);
+            
+            if (fromAccount.balance < amount) {
+                alert('Not enough money in that avatar, chief!');
+                return;
+            }
+
+            // Create withdrawal transaction
+            const withdrawTransaction = {
+                id: Date.now().toString(),
+                accountId: fromId,
+                type: 'transfer_out',
+                amount: -amount,
+                description: `Moved to ${toAccount.emoji} ${toAccount.name}: ${desc}`,
+                date: new Date().toISOString()
+            };
+
+            // Create deposit transaction
+            const depositTransaction = {
+                id: (Date.now() + 1).toString(),
+                accountId: toId,
+                type: 'transfer_in',
+                amount: amount,
+                description: `Moved from ${fromAccount.emoji} ${fromAccount.name}: ${desc}`,
+                date: new Date().toISOString()
+            };
+
+            transactions.push(withdrawTransaction);
+            transactions.push(depositTransaction);
+            
+            fromAccount.balance -= amount;
+            toAccount.balance += amount;
+            
+            saveData();
+            closeModal('transferModal');
+            updateUI();
+        }
+
         // UI updates
         function updateUI() {
             updateTotalBalance();
@@ -651,12 +908,34 @@
                 card.className = 'account-card' + (selectedAccount === account.id ? ' selected' : '');
                 card.onclick = () => selectAccount(account.id);
                 
+                let goalHTML = '';
+                if (account.goal) {
+                    const progress = Math.min((account.balance / account.goal) * 100, 100);
+                    goalHTML = `
+                        <div class="goal-info">
+                            <div class="goal-text">Goal: $${account.goal.toFixed(2)} • ${progress.toFixed(0)}%</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progress}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
                 card.innerHTML = `
-                    <div class="account-info">
-                        <h4>${account.emoji} ${account.name}</h4>
+                    <div class="account-header">
+                        <div class="account-info">
+                            <h4>${account.emoji} ${account.name}</h4>
+                        </div>
+                        <div class="account-actions">
+                            <button class="icon-btn goal-btn" onclick="showGoalModal('${account.id}', event)" title="Set Goal">🎯</button>
+                            <button class="icon-btn delete-btn" onclick="deleteAccount('${account.id}', event)" title="Delete">🗑️</button>
+                        </div>
                     </div>
-                    <div class="account-balance ${account.balance < 0 ? 'negative' : ''}">
-                        $${account.balance.toFixed(2)}
+                    ${goalHTML}
+                    <div class="account-bottom">
+                        <div class="account-balance ${account.balance < 0 ? 'negative' : ''}">
+                            $${account.balance.toFixed(2)}
+                        </div>
                     </div>
                 `;
                 
@@ -687,7 +966,10 @@
                 const item = document.createElement('div');
                 item.className = 'transaction-item';
                 
-                const typeLabel = transaction.type === 'deposit' ? 'Money In' : 'Money Out';
+                const typeLabel = transaction.type === 'deposit' ? 'Money In' : 
+                                 transaction.type === 'withdraw' ? 'Money Out' :
+                                 transaction.type === 'transfer_in' ? 'Moved In' : 
+                                 transaction.type === 'transfer_out' ? 'Moved Out' : 'Money Out';
                 
                 const date = new Date(transaction.date);
                 const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
@@ -711,6 +993,7 @@
             const hasAccount = selectedAccount !== null;
             document.getElementById('depositBtn').disabled = !hasAccount;
             document.getElementById('withdrawBtn').disabled = !hasAccount;
+            document.getElementById('transferBtn').disabled = accounts.length < 2;
         }
 
         // Utility functions
