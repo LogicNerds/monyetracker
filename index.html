@@ -467,6 +467,107 @@
                 grid-template-columns: repeat(6, 1fr);
             }
         }
+
+        /* Footer */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #333;
+            color: white;
+            padding: 12px 20px;
+            text-align: center;
+            font-size: 0.85em;
+            z-index: 999;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+
+        .footer a {
+            color: #a8edea;
+            text-decoration: none;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Disclaimer Drawer */
+        .disclaimer-drawer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            z-index: 1001;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
+        }
+
+        .disclaimer-drawer.open {
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .disclaimer-content {
+            padding: 30px 20px 80px 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .disclaimer-content h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            text-align: center;
+        }
+
+        .disclaimer-content p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .disclaimer-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.8em;
+            cursor: pointer;
+            color: #999;
+            padding: 5px 10px;
+        }
+
+        .disclaimer-close:hover {
+            color: #333;
+        }
+
+        .disclaimer-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .disclaimer-overlay.active {
+            display: block;
+        }
+
+        /* Add padding to main content to account for footer */
+        .main-content {
+            padding: 20px 20px 80px 20px;
+        }
     </style>
 </head>
 <body>
@@ -621,6 +722,26 @@
                 <button class="modal-btn primary" onclick="setGoal()">Set Goal</button>
             </div>
         </div>
+    </div>
+
+    <!-- Disclaimer Overlay -->
+    <div id="disclaimerOverlay" class="disclaimer-overlay" onclick="closeDisclaimer()"></div>
+
+    <!-- Disclaimer Drawer -->
+    <div id="disclaimerDrawer" class="disclaimer-drawer">
+        <button class="disclaimer-close" onclick="closeDisclaimer()">×</button>
+        <div class="disclaimer-content">
+            <h3>Disclaimer</h3>
+            <p>This application is provided for personal tracking purposes only and is not intended to serve as financial advice or as a substitute for professional financial planning services. IDK is not a licensed financial application and should not be treated as such.</p>
+            <p>Users are solely responsible for the accuracy of data entered and any financial decisions made. Never enter real banking credentials, account numbers, or sensitive financial information into this application.</p>
+            <p>Logic Nerds and its affiliates assume no liability for any losses, damages, or consequences arising from the use or misuse of this application. This software is provided "as is" without warranty of any kind, express or implied.</p>
+            <p>By using this application, you acknowledge and accept full responsibility for your financial decisions and data security.</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        © 2026 Logic Nerds. All Rights Reserved. | <a onclick="openDisclaimer()">Disclaimer</a>
     </div>
 
     <script>
@@ -1043,6 +1164,17 @@
         // Utility functions
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Disclaimer drawer functions
+        function openDisclaimer() {
+            document.getElementById('disclaimerDrawer').classList.add('open');
+            document.getElementById('disclaimerOverlay').classList.add('active');
+        }
+
+        function closeDisclaimer() {
+            document.getElementById('disclaimerDrawer').classList.remove('open');
+            document.getElementById('disclaimerOverlay').classList.remove('active');
         }
 
         // Initialize on load
