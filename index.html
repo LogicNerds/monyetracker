@@ -143,21 +143,36 @@
         .account-bottom {
             display: flex;
             justify-content: space-between;
-            align-items: flex-end;
+            align-items: center;
+            gap: 15px;
         }
 
-        .goal-info {
-            font-size: 0.85em;
+        .goal-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
             color: #666;
-            margin-top: 8px;
+            min-width: 0;
+        }
+
+        .goal-display .goal-emoji {
+            font-size: 1.2em;
+            flex-shrink: 0;
+        }
+
+        .goal-display .goal-amount {
+            font-weight: 600;
+            white-space: nowrap;
         }
 
         .progress-bar {
             background: #e0e0e0;
             border-radius: 10px;
             height: 8px;
-            margin: 5px 0;
+            flex: 1;
             overflow: hidden;
+            min-width: 60px;
         }
 
         .progress-fill {
@@ -165,12 +180,6 @@
             height: 100%;
             border-radius: 10px;
             transition: width 0.3s ease;
-        }
-
-        .goal-text {
-            font-size: 0.8em;
-            color: #999;
-            margin-top: 3px;
         }
 
         .account-balance {
@@ -532,6 +541,16 @@
                 <label>Starting Balance</label>
                 <input type="number" id="newAccountBalance" placeholder="0.00" step="0.01" value="0">
             </div>
+            <div class="form-group">
+                <label style="display: flex; align-items: center; cursor: pointer;">
+                    <input type="checkbox" id="hasGoal" style="margin-right: 8px; width: auto;" onchange="toggleGoalInput()">
+                    Make a Goal
+                </label>
+            </div>
+            <div class="form-group" id="goalInputGroup" style="display: none;">
+                <label>Goal Amount</label>
+                <input type="number" id="newAccountGoal" placeholder="0.00" step="0.01">
+            </div>
             <div class="modal-buttons">
                 <button class="modal-btn secondary" onclick="closeModal('addAccountModal')">Cancel</button>
                 <button class="modal-btn primary" onclick="addAccount()">Create Avatar</button>
@@ -650,6 +669,9 @@
             document.getElementById('addAccountModal').classList.add('active');
             document.getElementById('newAccountName').value = '';
             document.getElementById('newAccountBalance').value = '0';
+            document.getElementById('hasGoal').checked = false;
+            document.getElementById('goalInputGroup').style.display = 'none';
+            document.getElementById('newAccountGoal').value = '';
             selectedEmojiValue = '💵';
             
             // Reset emoji selection
@@ -659,13 +681,26 @@
             document.querySelector('.emoji-btn').classList.add('selected');
         }
 
+        function toggleGoalInput() {
+            const checkbox = document.getElementById('hasGoal');
+            const goalInput = document.getElementById('goalInputGroup');
+            goalInput.style.display = checkbox.checked ? 'block' : 'none';
+        }
+
         function addAccount() {
             const name = document.getElementById('newAccountName').value.trim();
             const balance = parseFloat(document.getElementById('newAccountBalance').value) || 0;
             const emoji = selectedEmojiValue;
+            const hasGoal = document.getElementById('hasGoal').checked;
+            const goalAmount = hasGoal ? parseFloat(document.getElementById('newAccountGoal').value) : null;
             
             if (!name) {
                 alert('Yo, you gotta name this avatar!');
+                return;
+            }
+
+            if (hasGoal && (!goalAmount || goalAmount <= 0)) {
+                alert('Put in a real goal amount!');
                 return;
             }
 
@@ -674,7 +709,7 @@
                 name: name,
                 emoji: emoji,
                 balance: balance,
-                goal: null
+                goal: goalAmount
             };
 
             accounts.push(newAccount);
@@ -908,14 +943,28 @@
                 card.className = 'account-card' + (selectedAccount === account.id ? ' selected' : '');
                 card.onclick = () => selectAccount(account.id);
                 
-                let goalHTML = '';
+                let bottomHTML = '';
                 if (account.goal) {
                     const progress = Math.min((account.balance / account.goal) * 100, 100);
-                    goalHTML = `
-                        <div class="goal-info">
-                            <div class="goal-text">Goal: $${account.goal.toFixed(2)} • ${progress.toFixed(0)}%</div>
+                    bottomHTML = `
+                        <div class="account-bottom">
+                            <div class="account-balance ${account.balance < 0 ? 'negative' : ''}">
+                                $${account.balance.toFixed(2)}
+                            </div>
                             <div class="progress-bar">
                                 <div class="progress-fill" style="width: ${progress}%"></div>
+                            </div>
+                            <div class="goal-display">
+                                <span class="goal-emoji">🎯</span>
+                                <span class="goal-amount">$${account.goal.toFixed(2)}</span>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    bottomHTML = `
+                        <div class="account-bottom">
+                            <div class="account-balance ${account.balance < 0 ? 'negative' : ''}">
+                                $${account.balance.toFixed(2)}
                             </div>
                         </div>
                     `;
@@ -931,12 +980,7 @@
                             <button class="icon-btn delete-btn" onclick="deleteAccount('${account.id}', event)" title="Delete">🗑️</button>
                         </div>
                     </div>
-                    ${goalHTML}
-                    <div class="account-bottom">
-                        <div class="account-balance ${account.balance < 0 ? 'negative' : ''}">
-                            $${account.balance.toFixed(2)}
-                        </div>
-                    </div>
+                    ${bottomHTML}
                 `;
                 
                 list.appendChild(card);
