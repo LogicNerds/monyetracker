@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IDK - Money Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: white;
+            box-shadow: 0 0 50px rgba(0,0,0,0.2);
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 0.85em;
+            opacity: 0.9;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 20px;
+        }
+
+        .total-balance {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 20px;
+            padding: 30px;
+            color: white;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(245, 87, 108, 0.3);
+        }
+
+        .total-balance h2 {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .total-balance .amount {
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+
+        /* Accounts */
+        .accounts-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .account-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .account-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .account-card.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .account-info h4 {
+            color: #333;
+            font-size: 1.3em;
+            margin-bottom: 5px;
+        }
+
+        .account-balance {
+            color: #667eea;
+            font-size: 1.5em;
+            font-weight: 700;
+        }
+
+        .account-balance.negative {
+            color: #f5576c;
+        }
+
+        .add-account-btn {
+            width: 100%;
+            padding: 15px;
+            background: white;
+            border: 2px dashed #667eea;
+            color: #667eea;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: all 0.2s;
+        }
+
+        .add-account-btn:hover {
+            background: #f0f4ff;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 25px 0;
+        }
+
+        .action-btn {
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+        }
+
+        .action-btn.deposit {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .action-btn.withdraw {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Transactions */
+        .transactions-section {
+            margin-top: 30px;
+        }
+
+        .transactions-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .transaction-item {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .transaction-info {
+            flex: 1;
+        }
+
+        .transaction-type {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 3px;
+        }
+
+        .transaction-desc {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 3px;
+        }
+
+        .transaction-date {
+            font-size: 0.8em;
+            color: #999;
+        }
+
+        .transaction-amount {
+            font-size: 1.2em;
+            font-weight: 700;
+        }
+
+        .transaction-amount.positive {
+            color: #4facfe;
+        }
+
+        .transaction-amount.negative {
+            color: #fa709a;
+        }
+
+        .no-transactions {
+            text-align: center;
+            color: #999;
+            padding: 40px 20px;
+            font-style: italic;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px 20px;
+            max-width: 400px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Emoji Picker */
+        .emoji-picker {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .emoji-btn {
+            font-size: 1.8em;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .emoji-btn:hover {
+            transform: scale(1.1);
+            border-color: #667eea;
+        }
+
+        .emoji-btn.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: scale(1.1);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-btn.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .modal-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .modal-btn.secondary {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .modal-btn.secondary:hover {
+            background: #e0e0e0;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.6em;
+            }
+
+            .total-balance .amount {
+                font-size: 2em;
+            }
+
+            .action-buttons {
+                gap: 8px;
+            }
+
+            .action-btn {
+                padding: 12px 8px;
+                font-size: 0.85em;
+            }
+
+            .emoji-picker {
+                grid-template-columns: repeat(6, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💸 IDK</h1>
+            <p>A money tracker app for tracking your money in an app</p>
+        </div>
+
+        <div class="main-content">
+            <div class="total-balance">
+                <h2>Total Balance</h2>
+                <div class="amount" id="totalBalance">$0.00</div>
+            </div>
+
+            <div class="accounts-section">
+                <h3>Money Avatars</h3>
+                <div id="accountsList"></div>
+                <button class="add-account-btn" onclick="showAddAccountModal()">+ Add a Money Avatar</button>
+            </div>
+
+            <div class="action-buttons">
+                <button class="action-btn deposit" onclick="showTransactionModal('deposit')" id="depositBtn" disabled>
+                    Stack It
+                </button>
+                <button class="action-btn withdraw" onclick="showTransactionModal('withdraw')" id="withdrawBtn" disabled>
+                    Spend It
+                </button>
+            </div>
+
+            <div class="transactions-section">
+                <h3>Recent Moves</h3>
+                <div id="transactionsList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Money Avatar Modal -->
+    <div id="addAccountModal" class="modal">
+        <div class="modal-content">
+            <h2>Create a Money Avatar</h2>
+            <div class="form-group">
+                <label>Avatar Name</label>
+                <input type="text" id="newAccountName" placeholder="e.g., Cash, Savings, Spending">
+            </div>
+            <div class="form-group">
+                <label>Pick an Emoji</label>
+                <div class="emoji-picker" id="emojiPicker">
+                    <button type="button" class="emoji-btn selected" data-emoji="💵">💵</button>
+                    <button type="button" class="emoji-btn" data-emoji="💰">💰</button>
+                    <button type="button" class="emoji-btn" data-emoji="💸">💸</button>
+                    <button type="button" class="emoji-btn" data-emoji="🏦">🏦</button>
+                    <button type="button" class="emoji-btn" data-emoji="💳">💳</button>
+                    <button type="button" class="emoji-btn" data-emoji="🪙">🪙</button>
+                    <button type="button" class="emoji-btn" data-emoji="💎">💎</button>
+                    <button type="button" class="emoji-btn" data-emoji="🎯">🎯</button>
+                    <button type="button" class="emoji-btn" data-emoji="🚀">🚀</button>
+                    <button type="button" class="emoji-btn" data-emoji="⭐">⭐</button>
+                    <button type="button" class="emoji-btn" data-emoji="🔥">🔥</button>
+                    <button type="button" class="emoji-btn" data-emoji="🎮">🎮</button>
+                    <button type="button" class="emoji-btn" data-emoji="🎵">🎵</button>
+                    <button type="button" class="emoji-btn" data-emoji="🎨">🎨</button>
+                    <button type="button" class="emoji-btn" data-emoji="⚡">⚡</button>
+                    <button type="button" class="emoji-btn" data-emoji="🌟">🌟</button>
+                </div>
+                <input type="hidden" id="selectedEmoji" value="💵">
+            </div>
+            <div class="form-group">
+                <label>Starting Balance</label>
+                <input type="number" id="newAccountBalance" placeholder="0.00" step="0.01" value="0">
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeModal('addAccountModal')">Cancel</button>
+                <button class="modal-btn primary" onclick="addAccount()">Create Avatar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction Modal -->
+    <div id="transactionModal" class="modal">
+        <div class="modal-content">
+            <h2 id="transactionModalTitle">Add a Move</h2>
+            <div class="form-group">
+                <label>Amount</label>
+                <input type="number" id="transactionAmount" placeholder="0.00" step="0.01">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <input type="text" id="transactionDesc" placeholder="What's this for?">
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeModal('transactionModal')">Cancel</button>
+                <button class="modal-btn primary" onclick="addTransaction()">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data structure - simplified without users
+        let accounts = [];
+        let transactions = [];
+        let selectedAccount = null;
+        let currentTransactionType = null;
+        let selectedEmojiValue = '💵';
+
+        // Initialize app
+        function init() {
+            loadData();
+            setupEmojiPicker();
+            updateUI();
+        }
+
+        // Data persistence
+        function loadData() {
+            accounts = JSON.parse(localStorage.getItem('idkAccounts') || '[]');
+            transactions = JSON.parse(localStorage.getItem('idkTransactions') || '[]');
+        }
+
+        function saveData() {
+            localStorage.setItem('idkAccounts', JSON.stringify(accounts));
+            localStorage.setItem('idkTransactions', JSON.stringify(transactions));
+        }
+
+        // Emoji picker setup
+        function setupEmojiPicker() {
+            document.querySelectorAll('.emoji-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    selectedEmojiValue = this.getAttribute('data-emoji');
+                    document.getElementById('selectedEmoji').value = selectedEmojiValue;
+                    
+                    // Update button states
+                    document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
+                    this.classList.add('selected');
+                });
+            });
+        }
+
+        // Account management
+        function showAddAccountModal() {
+            document.getElementById('addAccountModal').classList.add('active');
+            document.getElementById('newAccountName').value = '';
+            document.getElementById('newAccountBalance').value = '0';
+            selectedEmojiValue = '💵';
+            
+            // Reset emoji selection
+            document.querySelectorAll('.emoji-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            document.querySelector('.emoji-btn').classList.add('selected');
+        }
+
+        function addAccount() {
+            const name = document.getElementById('newAccountName').value.trim();
+            const balance = parseFloat(document.getElementById('newAccountBalance').value) || 0;
+            const emoji = selectedEmojiValue;
+            
+            if (!name) {
+                alert('Yo, you gotta name this avatar!');
+                return;
+            }
+
+            const newAccount = {
+                id: Date.now().toString(),
+                name: name,
+                emoji: emoji,
+                balance: balance
+            };
+
+            accounts.push(newAccount);
+            
+            // Add initial balance transaction if non-zero
+            if (balance !== 0) {
+                const transaction = {
+                    id: Date.now().toString(),
+                    accountId: newAccount.id,
+                    type: 'deposit',
+                    amount: balance,
+                    description: 'Starting balance',
+                    date: new Date().toISOString()
+                };
+                transactions.push(transaction);
+            }
+            
+            saveData();
+            closeModal('addAccountModal');
+            updateUI();
+        }
+
+        function selectAccount(accountId) {
+            selectedAccount = accountId;
+            updateUI();
+        }
+
+        // Transaction management
+        function showTransactionModal(type) {
+            if (!selectedAccount) return;
+            
+            currentTransactionType = type;
+            const modal = document.getElementById('transactionModal');
+            const title = document.getElementById('transactionModalTitle');
+            
+            title.textContent = type === 'deposit' ? 'Stack Some Cash' : 'Spend Some Bread';
+            document.getElementById('transactionAmount').value = '';
+            document.getElementById('transactionDesc').value = '';
+            
+            modal.classList.add('active');
+        }
+
+        function addTransaction() {
+            const amount = parseFloat(document.getElementById('transactionAmount').value);
+            const desc = document.getElementById('transactionDesc').value.trim();
+            
+            if (!amount || amount <= 0) {
+                alert('Put in a real amount!');
+                return;
+            }
+
+            if (!desc) {
+                alert('What\'s this for tho?');
+                return;
+            }
+
+            const transaction = {
+                id: Date.now().toString(),
+                accountId: selectedAccount,
+                type: currentTransactionType,
+                amount: currentTransactionType === 'deposit' ? amount : -amount,
+                description: desc,
+                date: new Date().toISOString()
+            };
+
+            transactions.push(transaction);
+            
+            // Update account balance
+            const account = accounts.find(a => a.id === selectedAccount);
+            account.balance += transaction.amount;
+            
+            saveData();
+            closeModal('transactionModal');
+            updateUI();
+        }
+
+        // UI updates
+        function updateUI() {
+            updateTotalBalance();
+            updateAccountsList();
+            updateTransactionsList();
+            updateActionButtons();
+        }
+
+        function updateTotalBalance() {
+            const total = accounts.reduce((sum, acc) => sum + acc.balance, 0);
+            document.getElementById('totalBalance').textContent = '$' + total.toFixed(2);
+        }
+
+        function updateAccountsList() {
+            const list = document.getElementById('accountsList');
+            list.innerHTML = '';
+            
+            accounts.forEach(account => {
+                const card = document.createElement('div');
+                card.className = 'account-card' + (selectedAccount === account.id ? ' selected' : '');
+                card.onclick = () => selectAccount(account.id);
+                
+                card.innerHTML = `
+                    <div class="account-info">
+                        <h4>${account.emoji} ${account.name}</h4>
+                    </div>
+                    <div class="account-balance ${account.balance < 0 ? 'negative' : ''}">
+                        $${account.balance.toFixed(2)}
+                    </div>
+                `;
+                
+                list.appendChild(card);
+            });
+        }
+
+        function updateTransactionsList() {
+            const list = document.getElementById('transactionsList');
+            
+            if (!selectedAccount) {
+                list.innerHTML = '<div class="no-transactions">Pick an avatar to see the moves</div>';
+                return;
+            }
+
+            const accountTransactions = transactions
+                .filter(t => t.accountId === selectedAccount)
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .slice(0, 10);
+            
+            if (accountTransactions.length === 0) {
+                list.innerHTML = '<div class="no-transactions">No moves yet, go make some!</div>';
+                return;
+            }
+
+            list.innerHTML = '';
+            accountTransactions.forEach(transaction => {
+                const item = document.createElement('div');
+                item.className = 'transaction-item';
+                
+                const typeLabel = transaction.type === 'deposit' ? 'Money In' : 'Money Out';
+                
+                const date = new Date(transaction.date);
+                const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                item.innerHTML = `
+                    <div class="transaction-info">
+                        <div class="transaction-type">${typeLabel}</div>
+                        <div class="transaction-desc">${transaction.description}</div>
+                        <div class="transaction-date">${dateStr}</div>
+                    </div>
+                    <div class="transaction-amount ${transaction.amount >= 0 ? 'positive' : 'negative'}">
+                        ${transaction.amount >= 0 ? '+' : ''}$${Math.abs(transaction.amount).toFixed(2)}
+                    </div>
+                `;
+                
+                list.appendChild(item);
+            });
+        }
+
+        function updateActionButtons() {
+            const hasAccount = selectedAccount !== null;
+            document.getElementById('depositBtn').disabled = !hasAccount;
+            document.getElementById('withdrawBtn').disabled = !hasAccount;
+        }
+
+        // Utility functions
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>
