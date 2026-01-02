@@ -376,6 +376,16 @@
             color: white;
         }
 
+        body[data-theme="monochrome"] .action-btn.transfer {
+            background: white;
+            border: 2px solid #ef4444;
+            color: #ef4444;
+        }
+
+        body[data-theme="monochrome"] .action-btn.transfer:hover {
+            background: #fef2f2;
+        }
+
         .action-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
@@ -1642,7 +1652,7 @@
                 buttonWithdrawStart: '#6b7280',
                 buttonWithdrawEnd: '#4b5563',
                 buttonTransferStart: '#ffffff',
-                buttonTransferEnd: '#f3f4f6'
+                buttonTransferEnd: '#ffffff'
             },
             pink: {
                 primaryStart: '#fce7f3',
@@ -1758,6 +1768,9 @@
             root.style.setProperty('--button-withdraw-end', theme.buttonWithdrawEnd);
             root.style.setProperty('--button-transfer-start', theme.buttonTransferStart);
             root.style.setProperty('--button-transfer-end', theme.buttonTransferEnd);
+
+            // Set theme data attribute for special styling
+            document.body.setAttribute('data-theme', themeName);
 
             // Save theme preference
             localStorage.setItem('idkTheme', themeName);
