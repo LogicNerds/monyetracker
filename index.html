@@ -26,27 +26,107 @@
             box-shadow: 0 0 50px rgba(0,0,0,0.2);
         }
 
+        /* Login Screen */
+        .login-screen {
+            padding: 40px 20px;
+            text-align: center;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .login-screen h1 {
+            color: white;
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .login-screen p {
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 60px;
+            font-size: 1.1em;
+        }
+
+        .google-signin-btn {
+            background: white;
+            color: #333;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.2s;
+        }
+
+        .google-signin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .google-icon {
+            width: 24px;
+            height: 24px;
+        }
+
         /* Header */
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 25px 20px;
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .header h1 {
+        .header-left h1 {
             font-size: 2em;
             margin-bottom: 5px;
         }
 
-        .header p {
+        .header-left p {
             font-size: 0.85em;
             opacity: 0.9;
         }
 
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
         /* Main Content */
         .main-content {
-            padding: 20px;
+            padding: 20px 20px 80px 20px;
         }
 
         .total-balance {
@@ -444,30 +524,6 @@
             background: #e0e0e0;
         }
 
-        /* Responsive */
-        @media (max-width: 480px) {
-            .header h1 {
-                font-size: 1.6em;
-            }
-
-            .total-balance .amount {
-                font-size: 2em;
-            }
-
-            .action-buttons {
-                gap: 8px;
-            }
-
-            .action-btn {
-                padding: 12px 8px;
-                font-size: 0.85em;
-            }
-
-            .emoji-picker {
-                grid-template-columns: repeat(6, 1fr);
-            }
-        }
-
         /* Footer */
         .footer {
             position: fixed;
@@ -564,17 +620,89 @@
             display: block;
         }
 
-        /* Add padding to main content to account for footer */
-        .main-content {
-            padding: 20px 20px 80px 20px;
+        .hidden {
+            display: none;
+        }
+
+        /* Loading Spinner */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .header-left h1 {
+                font-size: 1.6em;
+            }
+
+            .total-balance .amount {
+                font-size: 2em;
+            }
+
+            .action-buttons {
+                gap: 8px;
+            }
+
+            .action-btn {
+                padding: 12px 8px;
+                font-size: 0.85em;
+            }
+
+            .emoji-picker {
+                grid-template-columns: repeat(6, 1fr);
+            }
+
+            .user-avatar {
+                width: 32px;
+                height: 32px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <h1>💸 IDK</h1>
+        <p>A money tracker app for tracking your money in an app</p>
+        <button class="google-signin-btn" onclick="signInWithGoogle()">
+            <svg class="google-icon" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Sign in with Google
+        </button>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainApp" class="container hidden">
         <div class="header">
-            <h1>💸 IDK</h1>
-            <p>A money tracker app for tracking your money in an app</p>
+            <div class="header-left">
+                <h1>💸 IDK</h1>
+                <p>A money tracker app for tracking your money in an app</p>
+            </div>
+            <div class="user-info">
+                <img id="userAvatar" class="user-avatar" src="" alt="User">
+                <button class="logout-btn" onclick="signOut()">Logout</button>
+            </div>
         </div>
 
         <div class="main-content">
@@ -744,46 +872,155 @@
         © 2026 Logic Nerds. All Rights Reserved. | <a onclick="openDisclaimer()">Disclaimer</a>
     </div>
 
-    <script>
-        // Data structure - simplified without users
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut as firebaseSignOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, query, where, getDocs, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB630xgXEbm9wr25YvH3LdbWi0rYujoJEs",
+            authDomain: "idk-money-tracker.firebaseapp.com",
+            projectId: "idk-money-tracker",
+            storageBucket: "idk-money-tracker.firebasestorage.app",
+            messagingSenderId: "1033439716188",
+            appId: "1:1033439716188:web:ebf8c149f68d3d568f9799",
+            measurementId: "G-KEZSNJZ4JW"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Global variables
+        let currentUser = null;
         let accounts = [];
         let transactions = [];
         let selectedAccount = null;
         let currentTransactionType = null;
         let selectedEmojiValue = '💵';
         let goalAccountId = null;
+        let unsubscribeAccounts = null;
+        let unsubscribeTransactions = null;
 
-        // Initialize app
-        function init() {
-            loadData();
-            setupEmojiPicker();
-            updateUI();
+        // Make functions globally available
+        window.signInWithGoogle = signInWithGoogle;
+        window.signOut = signOut;
+        window.showAddAccountModal = showAddAccountModal;
+        window.toggleGoalInput = toggleGoalInput;
+        window.addAccount = addAccount;
+        window.selectAccount = selectAccount;
+        window.deleteAccount = deleteAccount;
+        window.showGoalModal = showGoalModal;
+        window.setGoal = setGoal;
+        window.showTransactionModal = showTransactionModal;
+        window.addTransaction = addTransaction;
+        window.showTransferModal = showTransferModal;
+        window.addTransfer = addTransfer;
+        window.closeModal = closeModal;
+        window.openDisclaimer = openDisclaimer;
+        window.closeDisclaimer = closeDisclaimer;
+
+        // Auth state observer
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                showMainApp();
+                loadUserData();
+            } else {
+                currentUser = null;
+                showLoginScreen();
+            }
+        });
+
+        // Sign in with Google
+        async function signInWithGoogle() {
+            const provider = new GoogleAuthProvider();
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                console.error('Sign in error:', error);
+                alert('Sign in failed. Please try again.');
+            }
         }
 
-        // Data persistence
-        function loadData() {
-            accounts = JSON.parse(localStorage.getItem('idkAccounts') || '[]');
-            transactions = JSON.parse(localStorage.getItem('idkTransactions') || '[]');
+        // Sign out
+        async function signOut() {
+            if (confirm('Are you sure you want to sign out?')) {
+                try {
+                    // Unsubscribe from listeners
+                    if (unsubscribeAccounts) unsubscribeAccounts();
+                    if (unsubscribeTransactions) unsubscribeTransactions();
+                    
+                    await firebaseSignOut(auth);
+                } catch (error) {
+                    console.error('Sign out error:', error);
+                    alert('Sign out failed. Please try again.');
+                }
+            }
         }
 
-        function saveData() {
-            localStorage.setItem('idkAccounts', JSON.stringify(accounts));
-            localStorage.setItem('idkTransactions', JSON.stringify(transactions));
+        // Show/hide screens
+        function showLoginScreen() {
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('mainApp').classList.add('hidden');
+        }
+
+        function showMainApp() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            
+            // Update user info
+            if (currentUser.photoURL) {
+                document.getElementById('userAvatar').src = currentUser.photoURL;
+            }
+        }
+
+        // Load user data from Firestore
+        function loadUserData() {
+            // Listen to accounts
+            const accountsQuery = query(
+                collection(db, 'accounts'),
+                where('userId', '==', currentUser.uid)
+            );
+            
+            unsubscribeAccounts = onSnapshot(accountsQuery, (snapshot) => {
+                accounts = [];
+                snapshot.forEach((doc) => {
+                    accounts.push({ id: doc.id, ...doc.data() });
+                });
+                updateUI();
+            });
+
+            // Listen to transactions
+            const transactionsQuery = query(
+                collection(db, 'transactions'),
+                where('userId', '==', currentUser.uid)
+            );
+            
+            unsubscribeTransactions = onSnapshot(transactionsQuery, (snapshot) => {
+                transactions = [];
+                snapshot.forEach((doc) => {
+                    transactions.push({ id: doc.id, ...doc.data() });
+                });
+                updateUI();
+            });
         }
 
         // Emoji picker setup
-        function setupEmojiPicker() {
+        document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.emoji-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     selectedEmojiValue = this.getAttribute('data-emoji');
                     document.getElementById('selectedEmoji').value = selectedEmojiValue;
                     
-                    // Update button states
                     document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
                     this.classList.add('selected');
                 });
             });
-        }
+        });
 
         // Account management
         function showAddAccountModal() {
@@ -795,7 +1032,6 @@
             document.getElementById('newAccountGoal').value = '';
             selectedEmojiValue = '💵';
             
-            // Reset emoji selection
             document.querySelectorAll('.emoji-btn').forEach(btn => {
                 btn.classList.remove('selected');
             });
@@ -808,7 +1044,7 @@
             goalInput.style.display = checkbox.checked ? 'block' : 'none';
         }
 
-        function addAccount() {
+        async function addAccount() {
             const name = document.getElementById('newAccountName').value.trim();
             const balance = parseFloat(document.getElementById('newAccountBalance').value) || 0;
             const emoji = selectedEmojiValue;
@@ -825,32 +1061,33 @@
                 return;
             }
 
-            const newAccount = {
-                id: Date.now().toString(),
-                name: name,
-                emoji: emoji,
-                balance: balance,
-                goal: goalAmount
-            };
+            try {
+                const accountRef = await addDoc(collection(db, 'accounts'), {
+                    userId: currentUser.uid,
+                    name: name,
+                    emoji: emoji,
+                    balance: balance,
+                    goal: goalAmount,
+                    createdAt: serverTimestamp()
+                });
 
-            accounts.push(newAccount);
-            
-            // Add initial balance transaction if non-zero
-            if (balance !== 0) {
-                const transaction = {
-                    id: Date.now().toString(),
-                    accountId: newAccount.id,
-                    type: 'deposit',
-                    amount: balance,
-                    description: 'Starting balance',
-                    date: new Date().toISOString()
-                };
-                transactions.push(transaction);
+                // Add initial balance transaction if non-zero
+                if (balance !== 0) {
+                    await addDoc(collection(db, 'transactions'), {
+                        userId: currentUser.uid,
+                        accountId: accountRef.id,
+                        type: 'deposit',
+                        amount: balance,
+                        description: 'Starting balance',
+                        date: serverTimestamp()
+                    });
+                }
+                
+                closeModal('addAccountModal');
+            } catch (error) {
+                console.error('Error adding account:', error);
+                alert('Failed to create avatar. Please try again.');
             }
-            
-            saveData();
-            closeModal('addAccountModal');
-            updateUI();
         }
 
         function selectAccount(accountId) {
@@ -858,8 +1095,8 @@
             updateUI();
         }
 
-        function deleteAccount(accountId, event) {
-            event.stopPropagation(); // Prevent selecting the account
+        async function deleteAccount(accountId, event) {
+            event.stopPropagation();
             
             const account = accounts.find(a => a.id === accountId);
             
@@ -869,24 +1106,32 @@
             }
 
             if (confirm(`Delete ${account.emoji} ${account.name}?`)) {
-                // Remove account
-                accounts = accounts.filter(a => a.id !== accountId);
-                
-                // Remove associated transactions
-                transactions = transactions.filter(t => t.accountId !== accountId);
-                
-                // Clear selection if deleted
-                if (selectedAccount === accountId) {
-                    selectedAccount = null;
+                try {
+                    // Delete account
+                    await deleteDoc(doc(db, 'accounts', accountId));
+                    
+                    // Delete associated transactions
+                    const transactionsQuery = query(
+                        collection(db, 'transactions'),
+                        where('accountId', '==', accountId)
+                    );
+                    const transactionsSnapshot = await getDocs(transactionsQuery);
+                    transactionsSnapshot.forEach(async (docSnapshot) => {
+                        await deleteDoc(doc(db, 'transactions', docSnapshot.id));
+                    });
+                    
+                    if (selectedAccount === accountId) {
+                        selectedAccount = null;
+                    }
+                } catch (error) {
+                    console.error('Error deleting account:', error);
+                    alert('Failed to delete avatar. Please try again.');
                 }
-                
-                saveData();
-                updateUI();
             }
         }
 
         function showGoalModal(accountId, event) {
-            event.stopPropagation(); // Prevent selecting the account
+            event.stopPropagation();
             
             goalAccountId = accountId;
             const account = accounts.find(a => a.id === accountId);
@@ -895,7 +1140,7 @@
             document.getElementById('goalAmount').value = account.goal || '';
         }
 
-        function setGoal() {
+        async function setGoal() {
             const goalAmount = parseFloat(document.getElementById('goalAmount').value);
             
             if (!goalAmount || goalAmount <= 0) {
@@ -903,12 +1148,16 @@
                 return;
             }
 
-            const account = accounts.find(a => a.id === goalAccountId);
-            account.goal = goalAmount;
-            
-            saveData();
-            closeModal('goalModal');
-            updateUI();
+            try {
+                await updateDoc(doc(db, 'accounts', goalAccountId), {
+                    goal: goalAmount
+                });
+                
+                closeModal('goalModal');
+            } catch (error) {
+                console.error('Error setting goal:', error);
+                alert('Failed to set goal. Please try again.');
+            }
         }
 
         // Transaction management
@@ -926,7 +1175,7 @@
             modal.classList.add('active');
         }
 
-        function addTransaction() {
+        async function addTransaction() {
             const amount = parseFloat(document.getElementById('transactionAmount').value);
             const desc = document.getElementById('transactionDesc').value.trim();
             
@@ -940,27 +1189,33 @@
                 return;
             }
 
-            const transaction = {
-                id: Date.now().toString(),
-                accountId: selectedAccount,
-                type: currentTransactionType,
-                amount: currentTransactionType === 'deposit' ? amount : -amount,
-                description: desc,
-                date: new Date().toISOString()
-            };
+            const transactionAmount = currentTransactionType === 'deposit' ? amount : -amount;
 
-            transactions.push(transaction);
-            
-            // Update account balance
-            const account = accounts.find(a => a.id === selectedAccount);
-            account.balance += transaction.amount;
-            
-            saveData();
-            closeModal('transactionModal');
-            updateUI();
+            try {
+                // Add transaction
+                await addDoc(collection(db, 'transactions'), {
+                    userId: currentUser.uid,
+                    accountId: selectedAccount,
+                    type: currentTransactionType,
+                    amount: transactionAmount,
+                    description: desc,
+                    date: serverTimestamp()
+                });
+
+                // Update account balance
+                const account = accounts.find(a => a.id === selectedAccount);
+                await updateDoc(doc(db, 'accounts', selectedAccount), {
+                    balance: account.balance + transactionAmount
+                });
+                
+                closeModal('transactionModal');
+            } catch (error) {
+                console.error('Error adding transaction:', error);
+                alert('Failed to add transaction. Please try again.');
+            }
         }
 
-        function showTransferModal() {
+        async function showTransferModal() {
             if (accounts.length < 2) {
                 alert('You need at least 2 avatars to move money around!');
                 return;
@@ -982,7 +1237,7 @@
             document.getElementById('transferModal').classList.add('active');
         }
 
-        function addTransfer() {
+        async function addTransfer() {
             const fromId = document.getElementById('transferFrom').value;
             const toId = document.getElementById('transferTo').value;
             const amount = parseFloat(document.getElementById('transferAmount').value);
@@ -1011,35 +1266,41 @@
                 return;
             }
 
-            // Create withdrawal transaction
-            const withdrawTransaction = {
-                id: Date.now().toString(),
-                accountId: fromId,
-                type: 'transfer_out',
-                amount: -amount,
-                description: `Moved to ${toAccount.emoji} ${toAccount.name}: ${desc}`,
-                date: new Date().toISOString()
-            };
+            try {
+                // Add withdrawal transaction
+                await addDoc(collection(db, 'transactions'), {
+                    userId: currentUser.uid,
+                    accountId: fromId,
+                    type: 'transfer_out',
+                    amount: -amount,
+                    description: `Moved to ${toAccount.emoji} ${toAccount.name}: ${desc}`,
+                    date: serverTimestamp()
+                });
 
-            // Create deposit transaction
-            const depositTransaction = {
-                id: (Date.now() + 1).toString(),
-                accountId: toId,
-                type: 'transfer_in',
-                amount: amount,
-                description: `Moved from ${fromAccount.emoji} ${fromAccount.name}: ${desc}`,
-                date: new Date().toISOString()
-            };
+                // Add deposit transaction
+                await addDoc(collection(db, 'transactions'), {
+                    userId: currentUser.uid,
+                    accountId: toId,
+                    type: 'transfer_in',
+                    amount: amount,
+                    description: `Moved from ${fromAccount.emoji} ${fromAccount.name}: ${desc}`,
+                    date: serverTimestamp()
+                });
 
-            transactions.push(withdrawTransaction);
-            transactions.push(depositTransaction);
-            
-            fromAccount.balance -= amount;
-            toAccount.balance += amount;
-            
-            saveData();
-            closeModal('transferModal');
-            updateUI();
+                // Update account balances
+                await updateDoc(doc(db, 'accounts', fromId), {
+                    balance: fromAccount.balance - amount
+                });
+                
+                await updateDoc(doc(db, 'accounts', toId), {
+                    balance: toAccount.balance + amount
+                });
+                
+                closeModal('transferModal');
+            } catch (error) {
+                console.error('Error transferring:', error);
+                alert('Failed to transfer money. Please try again.');
+            }
         }
 
         // UI updates
@@ -1118,7 +1379,11 @@
 
             const accountTransactions = transactions
                 .filter(t => t.accountId === selectedAccount)
-                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .sort((a, b) => {
+                    const aDate = a.date?.toDate ? a.date.toDate() : new Date(a.date);
+                    const bDate = b.date?.toDate ? b.date.toDate() : new Date(b.date);
+                    return bDate - aDate;
+                })
                 .slice(0, 10);
             
             if (accountTransactions.length === 0) {
@@ -1136,7 +1401,7 @@
                                  transaction.type === 'transfer_in' ? 'Moved In' : 
                                  transaction.type === 'transfer_out' ? 'Moved Out' : 'Money Out';
                 
-                const date = new Date(transaction.date);
+                const date = transaction.date?.toDate ? transaction.date.toDate() : new Date(transaction.date);
                 const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 
                 item.innerHTML = `
@@ -1176,9 +1441,6 @@
             document.getElementById('disclaimerDrawer').classList.remove('open');
             document.getElementById('disclaimerOverlay').classList.remove('active');
         }
-
-        // Initialize on load
-        init();
     </script>
 </body>
 </html>
