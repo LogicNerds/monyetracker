@@ -11,6 +11,8 @@
             --accent-primary: #0d9488;
             --accent-secondary: #0f766e;
             --accent-bg: #f0fdfa;
+            --balance-start: #0d9488;
+            --balance-end: #0f766e;
             --button-deposit-start: #0d9488;
             --button-deposit-end: #0f766e;
             --button-withdraw-start: #f59e0b;
@@ -180,7 +182,7 @@
         }
 
         .total-balance {
-            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            background: linear-gradient(135deg, var(--balance-start) 0%, var(--balance-end) 100%);
             border-radius: 16px;
             padding: 30px;
             color: white;
@@ -193,11 +195,13 @@
             opacity: 0.9;
             margin-bottom: 10px;
             font-weight: 500;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
         }
 
         .total-balance .amount {
             font-size: 2.5em;
             font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         /* Accounts */
@@ -954,13 +958,29 @@
                 </div>
                 <div class="theme-name">Teal & Navy (Default)</div>
             </div>
-            <div class="theme-option" onclick="setTheme('monochrome')">
+            <div class="theme-option" onclick="setTheme('ocean')">
                 <div class="theme-preview">
-                    <div class="theme-preview-color" style="background: #000"></div>
-                    <div class="theme-preview-color" style="background: #ef4444"></div>
-                    <div class="theme-preview-color" style="background: #fff"></div>
+                    <div class="theme-preview-color" style="background: #0c4a6e"></div>
+                    <div class="theme-preview-color" style="background: #0ea5e9"></div>
+                    <div class="theme-preview-color" style="background: #06b6d4"></div>
                 </div>
-                <div class="theme-name">Black Red White</div>
+                <div class="theme-name">Ocean Blue</div>
+            </div>
+            <div class="theme-option" onclick="setTheme('royal')">
+                <div class="theme-preview">
+                    <div class="theme-preview-color" style="background: #1e3a8a"></div>
+                    <div class="theme-preview-color" style="background: #6366f1"></div>
+                    <div class="theme-preview-color" style="background: #a855f7"></div>
+                </div>
+                <div class="theme-name">Royal Purple & Blue</div>
+            </div>
+            <div class="theme-option" onclick="setTheme('purple')">
+                <div class="theme-preview">
+                    <div class="theme-preview-color" style="background: #581c87"></div>
+                    <div class="theme-preview-color" style="background: #a855f7"></div>
+                    <div class="theme-preview-color" style="background: #ec4899"></div>
+                </div>
+                <div class="theme-name">Deep Purple</div>
             </div>
             <div class="theme-option" onclick="setTheme('pink')">
                 <div class="theme-preview">
@@ -969,6 +989,14 @@
                     <div class="theme-preview-color" style="background: #fff"></div>
                 </div>
                 <div class="theme-name">Light Pink & White</div>
+            </div>
+            <div class="theme-option" onclick="setTheme('monochrome')">
+                <div class="theme-preview">
+                    <div class="theme-preview-color" style="background: #000"></div>
+                    <div class="theme-preview-color" style="background: #ef4444"></div>
+                    <div class="theme-preview-color" style="background: #fff"></div>
+                </div>
+                <div class="theme-name">Black Red White</div>
             </div>
             <div class="theme-option" onclick="setTheme('forest')">
                 <div class="theme-preview">
@@ -1592,6 +1620,8 @@
                 accentPrimary: '#0d9488',
                 accentSecondary: '#0f766e',
                 accentBg: '#f0fdfa',
+                balanceStart: '#0d9488',
+                balanceEnd: '#0f766e',
                 buttonDepositStart: '#0d9488',
                 buttonDepositEnd: '#0f766e',
                 buttonWithdrawStart: '#f59e0b',
@@ -1605,6 +1635,8 @@
                 accentPrimary: '#ef4444',
                 accentSecondary: '#dc2626',
                 accentBg: '#fee2e2',
+                balanceStart: '#000000',
+                balanceEnd: '#1a1a1a',
                 buttonDepositStart: '#ef4444',
                 buttonDepositEnd: '#dc2626',
                 buttonWithdrawStart: '#6b7280',
@@ -1618,6 +1650,8 @@
                 accentPrimary: '#ec4899',
                 accentSecondary: '#db2777',
                 accentBg: '#fce7f3',
+                balanceStart: '#fce7f3',
+                balanceEnd: '#fbcfe8',
                 buttonDepositStart: '#ec4899',
                 buttonDepositEnd: '#db2777',
                 buttonWithdrawStart: '#a855f7',
@@ -1625,12 +1659,59 @@
                 buttonTransferStart: '#f472b6',
                 buttonTransferEnd: '#ec4899'
             },
+            purple: {
+                primaryStart: '#581c87',
+                primaryEnd: '#3b0764',
+                accentPrimary: '#a855f7',
+                accentSecondary: '#9333ea',
+                accentBg: '#f3e8ff',
+                balanceStart: '#a855f7',
+                balanceEnd: '#9333ea',
+                buttonDepositStart: '#a855f7',
+                buttonDepositEnd: '#9333ea',
+                buttonWithdrawStart: '#ec4899',
+                buttonWithdrawEnd: '#db2777',
+                buttonTransferStart: '#8b5cf6',
+                buttonTransferEnd: '#7c3aed'
+            },
+            ocean: {
+                primaryStart: '#0c4a6e',
+                primaryEnd: '#082f49',
+                accentPrimary: '#0ea5e9',
+                accentSecondary: '#0284c7',
+                accentBg: '#e0f2fe',
+                balanceStart: '#0ea5e9',
+                balanceEnd: '#0284c7',
+                buttonDepositStart: '#0ea5e9',
+                buttonDepositEnd: '#0284c7',
+                buttonWithdrawStart: '#06b6d4',
+                buttonWithdrawEnd: '#0891b2',
+                buttonTransferStart: '#6366f1',
+                buttonTransferEnd: '#4f46e5'
+            },
+            royal: {
+                primaryStart: '#1e3a8a',
+                primaryEnd: '#1e1b4b',
+                accentPrimary: '#6366f1',
+                accentSecondary: '#4f46e5',
+                accentBg: '#e0e7ff',
+                balanceStart: '#6366f1',
+                balanceEnd: '#4f46e5',
+                buttonDepositStart: '#6366f1',
+                buttonDepositEnd: '#4f46e5',
+                buttonWithdrawStart: '#a855f7',
+                buttonWithdrawEnd: '#9333ea',
+                buttonTransferStart: '#8b5cf6',
+                buttonTransferEnd: '#7c3aed'
+            },
             forest: {
                 primaryStart: '#064e3b',
                 primaryEnd: '#022c22',
                 accentPrimary: '#10b981',
                 accentSecondary: '#059669',
                 accentBg: '#d1fae5',
+                balanceStart: '#10b981',
+                balanceEnd: '#059669',
                 buttonDepositStart: '#10b981',
                 buttonDepositEnd: '#059669',
                 buttonWithdrawStart: '#fbbf24',
@@ -1644,6 +1725,8 @@
                 accentPrimary: '#f97316',
                 accentSecondary: '#ea580c',
                 accentBg: '#ffedd5',
+                balanceStart: '#f97316',
+                balanceEnd: '#ea580c',
                 buttonDepositStart: '#f97316',
                 buttonDepositEnd: '#ea580c',
                 buttonWithdrawStart: '#fbbf24',
@@ -1667,6 +1750,8 @@
             root.style.setProperty('--accent-primary', theme.accentPrimary);
             root.style.setProperty('--accent-secondary', theme.accentSecondary);
             root.style.setProperty('--accent-bg', theme.accentBg);
+            root.style.setProperty('--balance-start', theme.balanceStart);
+            root.style.setProperty('--balance-end', theme.balanceEnd);
             root.style.setProperty('--button-deposit-start', theme.buttonDepositStart);
             root.style.setProperty('--button-deposit-end', theme.buttonDepositEnd);
             root.style.setProperty('--button-withdraw-start', theme.buttonWithdrawStart);
