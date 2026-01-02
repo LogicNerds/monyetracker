@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IDK - Money Tracker</title>
     <style>
+        :root {
+            --primary-start: #2c5f7a;
+            --primary-end: #1a3a4a;
+            --accent-primary: #0d9488;
+            --accent-secondary: #0f766e;
+            --accent-bg: #f0fdfa;
+            --button-deposit-start: #0d9488;
+            --button-deposit-end: #0f766e;
+            --button-withdraw-start: #f59e0b;
+            --button-withdraw-end: #d97706;
+            --button-transfer-start: #6366f1;
+            --button-transfer-end: #4f46e5;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,7 +27,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #2c5f7a 0%, #1a3a4a 100%);
+            background: linear-gradient(135deg, var(--primary-start) 0%, var(--primary-end) 100%);
             min-height: 100vh;
             padding: 0;
         }
@@ -34,20 +48,24 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            background: linear-gradient(135deg, #2c5f7a 0%, #1a3a4a 100%);
+            align-items: center;
+            background: linear-gradient(135deg, var(--primary-start) 0%, var(--primary-end) 100%);
         }
 
         .login-screen h1 {
             color: white;
             font-size: 3em;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
         }
 
         .login-screen p {
             color: rgba(255,255,255,0.9);
-            margin-bottom: 60px;
-            font-size: 1.1em;
+            margin-bottom: 40px;
+            font-size: 0.95em;
+            font-style: italic;
+            line-height: 1.4;
+            max-width: 300px;
         }
 
         .google-signin-btn {
@@ -79,12 +97,43 @@
 
         /* Header */
         .header {
-            background: linear-gradient(135deg, #2c5f7a 0%, #1a3a4a 100%);
+            background: linear-gradient(135deg, var(--primary-start) 0%, var(--primary-end) 100%);
             color: white;
             padding: 25px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-left h1 {
+            font-size: 2em;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .theme-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: background 0.2s;
+        }
+
+        .theme-btn:hover {
+            background: rgba(255,255,255,0.3);
         }
 
         .header-left h1 {
@@ -131,7 +180,7 @@
         }
 
         .total-balance {
-            background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
             border-radius: 16px;
             padding: 30px;
             color: white;
@@ -170,14 +219,14 @@
         }
 
         .account-card:hover {
-            border-color: #0d9488;
+            border-color: var(--accent-primary);
             box-shadow: 0 3px 10px rgba(13, 148, 136, 0.2);
             transform: translateY(-2px);
         }
 
         .account-card.selected {
-            border-color: #0d9488;
-            background: #f0fdfa;
+            border-color: var(--accent-primary);
+            background: var(--accent-bg);
         }
 
         .account-header {
@@ -218,7 +267,7 @@
         }
 
         .goal-btn {
-            color: #0d9488;
+            color: var(--accent-primary);
         }
 
         .account-bottom {
@@ -257,14 +306,14 @@
         }
 
         .progress-fill {
-            background: linear-gradient(90deg, #0d9488 0%, #0f766e 100%);
+            background: linear-gradient(90deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
             height: 100%;
             border-radius: 10px;
             transition: width 0.3s ease;
         }
 
         .account-balance {
-            color: #0d9488;
+            color: var(--accent-primary);
             font-size: 1.5em;
             font-weight: 700;
         }
@@ -277,8 +326,8 @@
             width: 100%;
             padding: 15px;
             background: white;
-            border: 2px dashed #0d9488;
-            color: #0d9488;
+            border: 2px dashed var(--accent-primary);
+            color: var(--accent-primary);
             border-radius: 12px;
             cursor: pointer;
             font-size: 1em;
@@ -288,7 +337,7 @@
         }
 
         .add-account-btn:hover {
-            background: #f0fdfa;
+            background: var(--accent-bg);
         }
 
         /* Action Buttons */
@@ -311,15 +360,15 @@
         }
 
         .action-btn.deposit {
-            background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+            background: linear-gradient(135deg, var(--button-deposit-start) 0%, var(--button-deposit-end) 100%);
         }
 
         .action-btn.withdraw {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            background: linear-gradient(135deg, var(--button-withdraw-start) 0%, var(--button-withdraw-end) 100%);
         }
 
         .action-btn.transfer {
-            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            background: linear-gradient(135deg, var(--button-transfer-start) 0%, var(--button-transfer-end) 100%);
             color: white;
         }
 
@@ -383,7 +432,7 @@
         }
 
         .transaction-amount.positive {
-            color: #0d9488;
+            color: var(--accent-primary);
         }
 
         .transaction-amount.negative {
@@ -457,7 +506,7 @@
         .form-group input:focus,
         .form-group select:focus {
             outline: none;
-            border-color: #0d9488;
+            border-color: var(--accent-primary);
         }
 
         /* Emoji Picker */
@@ -480,12 +529,12 @@
 
         .emoji-btn:hover {
             transform: scale(1.1);
-            border-color: #0d9488;
+            border-color: var(--accent-primary);
         }
 
         .emoji-btn.selected {
-            border-color: #0d9488;
-            background: #f0fdfa;
+            border-color: var(--accent-primary);
+            background: var(--accent-bg);
             transform: scale(1.1);
         }
 
@@ -507,7 +556,7 @@
         }
 
         .modal-btn.primary {
-            background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
             color: white;
         }
 
@@ -621,6 +670,46 @@
             display: block;
         }
 
+        /* Theme Modal */
+        .theme-option {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .theme-option:hover {
+            border-color: var(--accent-primary);
+            background: #f9fafb;
+        }
+
+        .theme-option.selected {
+            border-color: var(--accent-primary);
+            background: var(--accent-bg);
+        }
+
+        .theme-preview {
+            width: 80px;
+            height: 50px;
+            border-radius: 8px;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .theme-preview-color {
+            flex: 1;
+        }
+
+        .theme-name {
+            font-weight: 600;
+            color: #333;
+        }
+
         .hidden {
             display: none;
         }
@@ -681,7 +770,7 @@
     <!-- Login Screen -->
     <div id="loginScreen" class="login-screen">
         <h1>💸 IDK</h1>
-        <p>A money tracker app for tracking your money in an app</p>
+        <p>A money tracker app for<br>tracking your money in an app</p>
         <button class="google-signin-btn" onclick="signInWithGoogle()">
             <svg class="google-icon" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -698,9 +787,9 @@
         <div class="header">
             <div class="header-left">
                 <h1>💸 IDK</h1>
-                <p>A money tracker app for tracking your money in an app</p>
             </div>
-            <div class="user-info">
+            <div class="header-right">
+                <button class="theme-btn" onclick="showThemeModal()" title="Change Theme">🎨</button>
                 <img id="userAvatar" class="user-avatar" src="" alt="User">
                 <button class="logout-btn" onclick="signOut()">Logout</button>
             </div>
@@ -849,6 +938,56 @@
             <div class="modal-buttons">
                 <button class="modal-btn secondary" onclick="closeModal('goalModal')">Cancel</button>
                 <button class="modal-btn primary" onclick="setGoal()">Set Goal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Theme Modal -->
+    <div id="themeModal" class="modal">
+        <div class="modal-content">
+            <h2>Choose Your Vibe</h2>
+            <div class="theme-option" onclick="setTheme('default')">
+                <div class="theme-preview">
+                    <div class="theme-preview-color" style="background: #2c5f7a"></div>
+                    <div class="theme-preview-color" style="background: #0d9488"></div>
+                    <div class="theme-preview-color" style="background: #f59e0b"></div>
+                </div>
+                <div class="theme-name">Teal & Navy (Default)</div>
+            </div>
+            <div class="theme-option" onclick="setTheme('monochrome')">
+                <div class="theme-preview">
+                    <div class="theme-preview-color" style="background: #000"></div>
+                    <div class="theme-preview-color" style="background: #ef4444"></div>
+                    <div class="theme-preview-color" style="background: #fff"></div>
+                </div>
+                <div class="theme-name">Black Red White</div>
+            </div>
+            <div class="theme-option" onclick="setTheme('pink')">
+                <div class="theme-preview">
+                    <div class="theme-preview-color" style="background: #fce7f3"></div>
+                    <div class="theme-preview-color" style="background: #ec4899"></div>
+                    <div class="theme-preview-color" style="background: #fff"></div>
+                </div>
+                <div class="theme-name">Light Pink & White</div>
+            </div>
+            <div class="theme-option" onclick="setTheme('forest')">
+                <div class="theme-preview">
+                    <div class="theme-preview-color" style="background: #064e3b"></div>
+                    <div class="theme-preview-color" style="background: #10b981"></div>
+                    <div class="theme-preview-color" style="background: #fbbf24"></div>
+                </div>
+                <div class="theme-name">Forest Green</div>
+            </div>
+            <div class="theme-option" onclick="setTheme('sunset')">
+                <div class="theme-preview">
+                    <div class="theme-preview-color" style="background: #7c2d12"></div>
+                    <div class="theme-preview-color" style="background: #f97316"></div>
+                    <div class="theme-preview-color" style="background: #fbbf24"></div>
+                </div>
+                <div class="theme-name">Sunset Orange</div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeModal('themeModal')">Close</button>
             </div>
         </div>
     </div>
@@ -1442,6 +1581,110 @@
             document.getElementById('disclaimerDrawer').classList.remove('open');
             document.getElementById('disclaimerOverlay').classList.remove('active');
         }
+
+        // Theme management
+        const themes = {
+            default: {
+                primaryStart: '#2c5f7a',
+                primaryEnd: '#1a3a4a',
+                accentPrimary: '#0d9488',
+                accentSecondary: '#0f766e',
+                accentBg: '#f0fdfa',
+                buttonDepositStart: '#0d9488',
+                buttonDepositEnd: '#0f766e',
+                buttonWithdrawStart: '#f59e0b',
+                buttonWithdrawEnd: '#d97706',
+                buttonTransferStart: '#6366f1',
+                buttonTransferEnd: '#4f46e5'
+            },
+            monochrome: {
+                primaryStart: '#000000',
+                primaryEnd: '#1a1a1a',
+                accentPrimary: '#ef4444',
+                accentSecondary: '#dc2626',
+                accentBg: '#fee2e2',
+                buttonDepositStart: '#ef4444',
+                buttonDepositEnd: '#dc2626',
+                buttonWithdrawStart: '#6b7280',
+                buttonWithdrawEnd: '#4b5563',
+                buttonTransferStart: '#ffffff',
+                buttonTransferEnd: '#f3f4f6'
+            },
+            pink: {
+                primaryStart: '#fce7f3',
+                primaryEnd: '#fbcfe8',
+                accentPrimary: '#ec4899',
+                accentSecondary: '#db2777',
+                accentBg: '#fce7f3',
+                buttonDepositStart: '#ec4899',
+                buttonDepositEnd: '#db2777',
+                buttonWithdrawStart: '#a855f7',
+                buttonWithdrawEnd: '#9333ea',
+                buttonTransferStart: '#f472b6',
+                buttonTransferEnd: '#ec4899'
+            },
+            forest: {
+                primaryStart: '#064e3b',
+                primaryEnd: '#022c22',
+                accentPrimary: '#10b981',
+                accentSecondary: '#059669',
+                accentBg: '#d1fae5',
+                buttonDepositStart: '#10b981',
+                buttonDepositEnd: '#059669',
+                buttonWithdrawStart: '#fbbf24',
+                buttonWithdrawEnd: '#f59e0b',
+                buttonTransferStart: '#6366f1',
+                buttonTransferEnd: '#4f46e5'
+            },
+            sunset: {
+                primaryStart: '#7c2d12',
+                primaryEnd: '#431407',
+                accentPrimary: '#f97316',
+                accentSecondary: '#ea580c',
+                accentBg: '#ffedd5',
+                buttonDepositStart: '#f97316',
+                buttonDepositEnd: '#ea580c',
+                buttonWithdrawStart: '#fbbf24',
+                buttonWithdrawEnd: '#f59e0b',
+                buttonTransferStart: '#ef4444',
+                buttonTransferEnd: '#dc2626'
+            }
+        };
+
+        function showThemeModal() {
+            document.getElementById('themeModal').classList.add('active');
+        }
+
+        function setTheme(themeName) {
+            const theme = themes[themeName];
+            if (!theme) return;
+
+            const root = document.documentElement;
+            root.style.setProperty('--primary-start', theme.primaryStart);
+            root.style.setProperty('--primary-end', theme.primaryEnd);
+            root.style.setProperty('--accent-primary', theme.accentPrimary);
+            root.style.setProperty('--accent-secondary', theme.accentSecondary);
+            root.style.setProperty('--accent-bg', theme.accentBg);
+            root.style.setProperty('--button-deposit-start', theme.buttonDepositStart);
+            root.style.setProperty('--button-deposit-end', theme.buttonDepositEnd);
+            root.style.setProperty('--button-withdraw-start', theme.buttonWithdrawStart);
+            root.style.setProperty('--button-withdraw-end', theme.buttonWithdrawEnd);
+            root.style.setProperty('--button-transfer-start', theme.buttonTransferStart);
+            root.style.setProperty('--button-transfer-end', theme.buttonTransferEnd);
+
+            // Save theme preference
+            localStorage.setItem('idkTheme', themeName);
+            
+            closeModal('themeModal');
+        }
+
+        // Load saved theme on startup
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('idkTheme') || 'default';
+            if (savedTheme && themes[savedTheme]) {
+                setTheme(savedTheme);
+            }
+        });
     </script>
 </body>
 </html>
