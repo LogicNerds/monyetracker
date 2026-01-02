@@ -386,6 +386,111 @@
             background: #fef2f2;
         }
 
+        /* Classic Black & White Theme Overrides */
+        body[data-theme="classic"] {
+            background: white;
+        }
+
+        body[data-theme="classic"] .container {
+            background: white;
+        }
+
+        body[data-theme="classic"] .main-content {
+            background: white;
+        }
+
+        body[data-theme="classic"] .account-card {
+            background: white;
+            border: 2px solid #000000;
+        }
+
+        body[data-theme="classic"] .account-card:hover {
+            border-color: #000000;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        body[data-theme="classic"] .account-card.selected {
+            border-color: #000000;
+            background: #f5f5f5;
+        }
+
+        body[data-theme="classic"] .account-balance {
+            color: #000000;
+        }
+
+        body[data-theme="classic"] .add-account-btn {
+            background: white;
+            border: 2px dashed #000000;
+            color: #000000;
+        }
+
+        body[data-theme="classic"] .add-account-btn:hover {
+            background: #f5f5f5;
+        }
+
+        body[data-theme="classic"] .action-btn {
+            background: #000000;
+            color: white;
+            border: 2px solid #000000;
+        }
+
+        body[data-theme="classic"] .action-btn:hover {
+            background: #333333;
+        }
+
+        body[data-theme="classic"] .action-btn:disabled {
+            background: #e5e5e5;
+            border-color: #e5e5e5;
+            color: #999999;
+        }
+
+        body[data-theme="classic"] .transaction-item {
+            background: white;
+            border: 1px solid #000000;
+        }
+
+        body[data-theme="classic"] .transaction-amount.positive,
+        body[data-theme="classic"] .transaction-amount.negative {
+            color: #000000;
+        }
+
+        body[data-theme="classic"] .modal-btn.primary {
+            background: #000000;
+            color: white;
+        }
+
+        body[data-theme="classic"] .modal-btn.primary:hover {
+            background: #333333;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        body[data-theme="classic"] .emoji-btn:hover,
+        body[data-theme="classic"] .emoji-btn.selected {
+            border-color: #000000;
+            background: #f5f5f5;
+        }
+
+        body[data-theme="classic"] .form-group input:focus,
+        body[data-theme="classic"] .form-group select:focus {
+            border-color: #000000;
+        }
+
+        body[data-theme="classic"] .progress-fill {
+            background: #000000;
+        }
+
+        body[data-theme="classic"] .logout-btn,
+        body[data-theme="classic"] .theme-btn {
+            background: rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+
+        body[data-theme="classic"] .logout-btn:hover,
+        body[data-theme="classic"] .theme-btn:hover {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
         .action-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
@@ -967,6 +1072,14 @@
                     <div class="theme-preview-color" style="background: #f59e0b"></div>
                 </div>
                 <div class="theme-name">Teal & Navy (Default)</div>
+            </div>
+            <div class="theme-option" onclick="setTheme('classic')">
+                <div class="theme-preview">
+                    <div class="theme-preview-color" style="background: #000"></div>
+                    <div class="theme-preview-color" style="background: #fff; border: 1px solid #ddd;"></div>
+                    <div class="theme-preview-color" style="background: #000"></div>
+                </div>
+                <div class="theme-name">Classic Black & White</div>
             </div>
             <div class="theme-option" onclick="setTheme('ocean')">
                 <div class="theme-preview">
@@ -1638,6 +1751,21 @@
                 buttonWithdrawEnd: '#d97706',
                 buttonTransferStart: '#6366f1',
                 buttonTransferEnd: '#4f46e5'
+            },
+            classic: {
+                primaryStart: '#000000',
+                primaryEnd: '#000000',
+                accentPrimary: '#000000',
+                accentSecondary: '#000000',
+                accentBg: '#ffffff',
+                balanceStart: '#000000',
+                balanceEnd: '#000000',
+                buttonDepositStart: '#000000',
+                buttonDepositEnd: '#000000',
+                buttonWithdrawStart: '#000000',
+                buttonWithdrawEnd: '#000000',
+                buttonTransferStart: '#000000',
+                buttonTransferEnd: '#000000'
             },
             monochrome: {
                 primaryStart: '#000000',
