@@ -103,12 +103,14 @@
             color: white;
             padding: 25px 20px;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
         }
 
         .header-left {
-            display: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .header-right {
@@ -899,10 +901,9 @@
     <div id="mainApp" class="container hidden">
         <div class="header">
             <div class="header-left">
-                <h1>💸 IDK</h1>
+                <button class="theme-btn" onclick="showThemeModal()" title="Change Theme">🎨</button>
             </div>
             <div class="header-right">
-                <button class="theme-btn" onclick="showThemeModal()" title="Change Theme">🎨</button>
                 <img id="userAvatar" class="user-avatar" src="" alt="User">
                 <button class="logout-btn" onclick="signOut()">Logout</button>
             </div>
