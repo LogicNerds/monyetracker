@@ -917,8 +917,8 @@
 
         .detail-actions {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
             margin-bottom: 30px;
         }
 
@@ -1065,10 +1065,11 @@
             <div class="detail-actions">
                 <button class="detail-action-btn" onclick="showTransactionModal('deposit')">Stack It</button>
                 <button class="detail-action-btn secondary" onclick="showTransactionModal('withdraw')">Spend It</button>
+                <button class="detail-action-btn" onclick="showTransferModal()" style="background: linear-gradient(135deg, var(--button-transfer-start) 0%, var(--button-transfer-end) 100%);">Move It</button>
             </div>
 
             <div class="transactions-section">
-                <h3>Transaction History</h3>
+                <h3>Recent Moves</h3>
                 <div id="detailTransactionsList"></div>
             </div>
         </div>
