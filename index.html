@@ -829,6 +829,120 @@
             display: none;
         }
 
+        /* Detail View */
+        .detail-view {
+            padding: 20px 20px 80px 20px;
+        }
+
+        .back-btn {
+            background: white;
+            border: 2px solid var(--accent-primary);
+            color: var(--accent-primary);
+            padding: 12px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            background: var(--accent-bg);
+        }
+
+        .detail-card {
+            background: white;
+            border: 2px solid var(--accent-primary);
+            border-radius: 20px;
+            padding: 30px 20px;
+            margin-bottom: 25px;
+        }
+
+        .detail-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .detail-emoji {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+        }
+
+        .detail-info h2 {
+            color: #333;
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+
+        .detail-info p {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .detail-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-item h3 {
+            color: #666;
+            font-size: 0.85em;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .stat-item .stat-value {
+            color: #333;
+            font-size: 1.8em;
+            font-weight: 700;
+        }
+
+        .stat-item .stat-value.goal {
+            color: var(--accent-primary);
+        }
+
+        .detail-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .detail-action-btn {
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+        }
+
+        .detail-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(13, 148, 136, 0.4);
+        }
+
+        .detail-action-btn.secondary {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        }
+
         /* Loading Spinner */
         .loading {
             text-align: center;
@@ -910,7 +1024,7 @@
             </div>
         </div>
 
-        <div class="main-content">
+        <div class="main-content" id="listView">
             <div class="total-balance">
                 <h2>Total Balance</h2>
                 <div class="amount" id="totalBalance">$0.00</div>
@@ -921,22 +1035,41 @@
                 <div id="accountsList"></div>
                 <button class="add-account-btn" onclick="showAddAccountModal()">+ Add a Money Avatar</button>
             </div>
+        </div>
 
-            <div class="action-buttons">
-                <button class="action-btn deposit" onclick="showTransactionModal('deposit')" id="depositBtn" disabled>
-                    Stack It
-                </button>
-                <button class="action-btn withdraw" onclick="showTransactionModal('withdraw')" id="withdrawBtn" disabled>
-                    Spend It
-                </button>
-                <button class="action-btn transfer" onclick="showTransferModal()" id="transferBtn" disabled>
-                    Move It
-                </button>
+        <!-- Detail View -->
+        <div class="detail-view hidden" id="detailView">
+            <button class="back-btn" onclick="backToList()">← Back to All Avatars</button>
+            
+            <div class="detail-card">
+                <div class="detail-header">
+                    <div class="detail-emoji" id="detailEmoji">💵</div>
+                    <div class="detail-info">
+                        <h2 id="detailName">Avatar Name</h2>
+                        <p id="detailType">Money Avatar</p>
+                    </div>
+                </div>
+
+                <div class="detail-stats">
+                    <div class="stat-item">
+                        <h3>Current Balance</h3>
+                        <div class="stat-value" id="detailBalance">$0.00</div>
+                    </div>
+                    <div class="stat-item" id="goalStatItem" style="display: none;">
+                        <h3>Goal</h3>
+                        <div class="stat-value goal" id="detailGoal">$0.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-actions">
+                <button class="detail-action-btn" onclick="showTransactionModal('deposit')">Stack It</button>
+                <button class="detail-action-btn secondary" onclick="showTransactionModal('withdraw')">Spend It</button>
             </div>
 
             <div class="transactions-section">
-                <h3>Recent Moves</h3>
-                <div id="transactionsList"></div>
+                <h3>Transaction History</h3>
+                <div id="detailTransactionsList"></div>
             </div>
         </div>
     </div>
@@ -1186,6 +1319,7 @@
         let accounts = [];
         let transactions = [];
         let selectedAccount = null;
+        let currentView = 'list'; // 'list' or 'detail'
         let currentTransactionType = null;
         let selectedEmojiValue = '💵';
         let goalAccountId = null;
@@ -1199,6 +1333,7 @@
         window.toggleGoalInput = toggleGoalInput;
         window.addAccount = addAccount;
         window.selectAccount = selectAccount;
+        window.backToList = backToList;
         window.deleteAccount = deleteAccount;
         window.showGoalModal = showGoalModal;
         window.setGoal = setGoal;
@@ -1381,7 +1516,40 @@
 
         function selectAccount(accountId) {
             selectedAccount = accountId;
-            updateUI();
+            showDetailView();
+        }
+
+        function showDetailView() {
+            const account = accounts.find(a => a.id === selectedAccount);
+            if (!account) return;
+
+            // Update detail view content
+            document.getElementById('detailEmoji').textContent = account.emoji;
+            document.getElementById('detailName').textContent = account.name;
+            document.getElementById('detailBalance').textContent = '$' + account.balance.toFixed(2);
+            
+            // Show/hide goal if set
+            if (account.goal) {
+                document.getElementById('goalStatItem').style.display = 'block';
+                document.getElementById('detailGoal').textContent = '$' + account.goal.toFixed(2);
+            } else {
+                document.getElementById('goalStatItem').style.display = 'none';
+            }
+
+            // Update transactions list for this account
+            updateDetailTransactionsList();
+
+            // Switch views
+            document.getElementById('listView').classList.add('hidden');
+            document.getElementById('detailView').classList.remove('hidden');
+            currentView = 'detail';
+        }
+
+        function backToList() {
+            document.getElementById('detailView').classList.add('hidden');
+            document.getElementById('listView').classList.remove('hidden');
+            selectedAccount = null;
+            currentView = 'list';
         }
 
         async function deleteAccount(accountId, event) {
@@ -1596,8 +1764,11 @@
         function updateUI() {
             updateTotalBalance();
             updateAccountsList();
-            updateTransactionsList();
-            updateActionButtons();
+            
+            // Update detail view if we're on it
+            if (currentView === 'detail' && selectedAccount) {
+                showDetailView();
+            }
         }
 
         function updateTotalBalance() {
@@ -1611,7 +1782,7 @@
             
             accounts.forEach(account => {
                 const card = document.createElement('div');
-                card.className = 'account-card' + (selectedAccount === account.id ? ' selected' : '');
+                card.className = 'account-card';
                 card.onclick = () => selectAccount(account.id);
                 
                 let bottomHTML = '';
@@ -1708,11 +1879,54 @@
             });
         }
 
-        function updateActionButtons() {
-            const hasAccount = selectedAccount !== null;
-            document.getElementById('depositBtn').disabled = !hasAccount;
-            document.getElementById('withdrawBtn').disabled = !hasAccount;
-            document.getElementById('transferBtn').disabled = accounts.length < 2;
+        function updateDetailTransactionsList() {
+            const list = document.getElementById('detailTransactionsList');
+            
+            if (!selectedAccount) {
+                list.innerHTML = '<div class="no-transactions">No transactions</div>';
+                return;
+            }
+
+            const accountTransactions = transactions
+                .filter(t => t.accountId === selectedAccount)
+                .sort((a, b) => {
+                    const aDate = a.date?.toDate ? a.date.toDate() : new Date(a.date);
+                    const bDate = b.date?.toDate ? b.date.toDate() : new Date(b.date);
+                    return bDate - aDate;
+                })
+                .slice(0, 30);
+            
+            if (accountTransactions.length === 0) {
+                list.innerHTML = '<div class="no-transactions">No transactions yet</div>';
+                return;
+            }
+
+            list.innerHTML = '';
+            accountTransactions.forEach(transaction => {
+                const item = document.createElement('div');
+                item.className = 'transaction-item';
+                
+                const typeLabel = transaction.type === 'deposit' ? 'Money In' : 
+                                 transaction.type === 'withdraw' ? 'Money Out' :
+                                 transaction.type === 'transfer_in' ? 'Moved In' : 
+                                 transaction.type === 'transfer_out' ? 'Moved Out' : 'Money Out';
+                
+                const date = transaction.date?.toDate ? transaction.date.toDate() : new Date(transaction.date);
+                const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                item.innerHTML = `
+                    <div class="transaction-info">
+                        <div class="transaction-type">${typeLabel}</div>
+                        <div class="transaction-desc">${transaction.description}</div>
+                        <div class="transaction-date">${dateStr}</div>
+                    </div>
+                    <div class="transaction-amount ${transaction.amount >= 0 ? 'positive' : 'negative'}">
+                        ${transaction.amount >= 0 ? '+' : ''}$${Math.abs(transaction.amount).toFixed(2)}
+                    </div>
+                `;
+                
+                list.appendChild(item);
+            });
         }
 
         // Utility functions
