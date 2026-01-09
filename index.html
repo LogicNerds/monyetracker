@@ -261,12 +261,23 @@
             cursor: pointer;
             transition: all 0.2s;
             position: relative;
+            touch-action: none;
         }
 
         .account-card:hover {
             border-color: var(--accent-primary);
             box-shadow: 0 3px 10px rgba(13, 148, 136, 0.2);
             transform: translateY(-2px);
+        }
+
+        .account-card.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+
+        .account-card.drag-over {
+            border-color: var(--accent-primary);
+            border-style: dashed;
         }
 
         .account-card.selected {
@@ -1560,12 +1571,16 @@
             }
 
             try {
+                // Get the highest order number
+                const maxOrder = accounts.length > 0 ? Math.max(...accounts.map(a => a.order || 0)) : -1;
+                
                 const accountRef = await addDoc(collection(db, 'accounts'), {
                     userId: currentUser.uid,
                     name: name,
                     emoji: emoji,
                     balance: balance,
                     goal: goalAmount,
+                    order: maxOrder + 1,
                     createdAt: serverTimestamp()
                 });
 
@@ -1835,6 +1850,89 @@
         }
 
         // UI updates
+        let draggedElement = null;
+
+        function handleDragStart(e) {
+            draggedElement = this;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', this.innerHTML);
+        }
+
+        function handleDragEnd(e) {
+            this.classList.remove('dragging');
+            
+            // Remove drag-over class from all cards
+            document.querySelectorAll('.account-card').forEach(card => {
+                card.classList.remove('drag-over');
+            });
+            
+            draggedElement = null;
+        }
+
+        function handleDragOver(e) {
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+            e.dataTransfer.dropEffect = 'move';
+            return false;
+        }
+
+        function handleDragEnter(e) {
+            if (this !== draggedElement) {
+                this.classList.add('drag-over');
+            }
+        }
+
+        function handleDragLeave(e) {
+            this.classList.remove('drag-over');
+        }
+
+        async function handleDrop(e) {
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            }
+            
+            if (draggedElement !== this) {
+                // Get all cards
+                const cards = Array.from(document.querySelectorAll('.account-card'));
+                const draggedIndex = cards.indexOf(draggedElement);
+                const droppedIndex = cards.indexOf(this);
+                
+                // Reorder accounts array
+                const draggedId = draggedElement.dataset.accountId;
+                const droppedId = this.dataset.accountId;
+                
+                // Update order in Firebase
+                await reorderAccounts(draggedId, droppedId, draggedIndex, droppedIndex);
+            }
+            
+            return false;
+        }
+
+        async function reorderAccounts(draggedId, droppedId, draggedIndex, droppedIndex) {
+            try {
+                // Sort current accounts by order
+                const sortedAccounts = [...accounts].sort((a, b) => (a.order || 0) - (b.order || 0));
+                
+                // Remove dragged item and insert at new position
+                const [draggedAccount] = sortedAccounts.splice(draggedIndex, 1);
+                sortedAccounts.splice(droppedIndex, 0, draggedAccount);
+                
+                // Update order values in Firebase
+                const updatePromises = sortedAccounts.map((account, index) => {
+                    return updateDoc(doc(db, 'accounts', account.id), {
+                        order: index
+                    });
+                });
+                
+                await Promise.all(updatePromises);
+            } catch (error) {
+                console.error('Error reordering accounts:', error);
+                alert('Failed to reorder avatars. Please try again.');
+            }
+        }
+
         function updateUI() {
             updateTotalBalance();
             updateAccountsList();
@@ -1907,10 +2005,28 @@
             const list = document.getElementById('accountsList');
             list.innerHTML = '';
             
-            accounts.forEach(account => {
+            // Sort accounts by order field
+            const sortedAccounts = [...accounts].sort((a, b) => (a.order || 0) - (b.order || 0));
+            
+            sortedAccounts.forEach((account, index) => {
                 const card = document.createElement('div');
                 card.className = 'account-card';
-                card.onclick = () => selectAccount(account.id);
+                card.draggable = true;
+                card.dataset.accountId = account.id;
+                card.onclick = (e) => {
+                    // Only select if not clicking on buttons
+                    if (!e.target.closest('.icon-btn')) {
+                        selectAccount(account.id);
+                    }
+                };
+                
+                // Drag and drop handlers
+                card.addEventListener('dragstart', handleDragStart);
+                card.addEventListener('dragend', handleDragEnd);
+                card.addEventListener('dragover', handleDragOver);
+                card.addEventListener('drop', handleDrop);
+                card.addEventListener('dragenter', handleDragEnter);
+                card.addEventListener('dragleave', handleDragLeave);
                 
                 let bottomHTML = '';
                 if (account.goal) {
