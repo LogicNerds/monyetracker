@@ -258,7 +258,7 @@
             border-radius: 16px;
             padding: 20px;
             margin-bottom: 15px;
-            cursor: grab;
+            cursor: pointer;
             transition: all 0.2s;
             position: relative;
         }
@@ -271,6 +271,27 @@
 
         .account-card.dragging {
             opacity: 0.5;
+        }
+
+        .drag-handle {
+            position: absolute;
+            left: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: grab;
+            font-size: 1.5em;
+            color: var(--accent-primary);
+            opacity: 0.5;
+            transition: opacity 0.2s;
+            padding: 10px;
+            touch-action: none;
+        }
+
+        .drag-handle:hover {
+            opacity: 1;
+        }
+
+        .drag-handle:active {
             cursor: grabbing;
         }
 
@@ -1494,11 +1515,27 @@
                 where('userId', '==', currentUser.uid)
             );
             
-            unsubscribeAccounts = onSnapshot(accountsQuery, (snapshot) => {
+            unsubscribeAccounts = onSnapshot(accountsQuery, async (snapshot) => {
                 accounts = [];
+                let needsOrderMigration = false;
+                
                 snapshot.forEach((doc) => {
-                    accounts.push({ id: doc.id, ...doc.data() });
+                    const accountData = { id: doc.id, ...doc.data() };
+                    accounts.push(accountData);
+                    
+                    // Check if any account is missing order field
+                    if (accountData.order === undefined || accountData.order === null) {
+                        needsOrderMigration = true;
+                    }
                 });
+                
+                // One-time migration: assign order to accounts that don't have it
+                if (needsOrderMigration) {
+                    console.log('Migrating accounts to add order field...');
+                    await migrateAccountOrders();
+                    return; // The listener will fire again after migration
+                }
+                
                 updateUI();
             });
 
@@ -1515,6 +1552,32 @@
                 });
                 updateUI();
             });
+        }
+
+        async function migrateAccountOrders() {
+            try {
+                // Sort by createdAt to maintain existing order
+                const sortedAccounts = [...accounts].sort((a, b) => {
+                    const aTime = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
+                    const bTime = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
+                    return aTime - bTime;
+                });
+                
+                // Assign order values
+                const updatePromises = sortedAccounts.map((account, index) => {
+                    if (account.order === undefined || account.order === null) {
+                        return updateDoc(doc(db, 'accounts', account.id), {
+                            order: index
+                        });
+                    }
+                    return Promise.resolve();
+                });
+                
+                await Promise.all(updatePromises);
+                console.log('Account order migration complete');
+            } catch (error) {
+                console.error('Error migrating account orders:', error);
+            }
         }
 
         // Emoji picker setup
@@ -1921,14 +1984,23 @@
 
         async function reorderAccounts(draggedId, droppedId, draggedIndex, droppedIndex) {
             try {
-                // Sort current accounts by order
+                // Sort current accounts by order (all should have order at this point due to migration)
                 const sortedAccounts = [...accounts].sort((a, b) => (a.order || 0) - (b.order || 0));
                 
-                // Remove dragged item and insert at new position
-                const [draggedAccount] = sortedAccounts.splice(draggedIndex, 1);
-                sortedAccounts.splice(droppedIndex, 0, draggedAccount);
+                // Find the actual accounts by ID
+                const draggedAccount = sortedAccounts.find(a => a.id === draggedId);
+                const droppedAccount = sortedAccounts.find(a => a.id === droppedId);
                 
-                // Update order values in Firebase
+                if (!draggedAccount || !droppedAccount) {
+                    console.error('Could not find dragged or dropped account');
+                    return;
+                }
+                
+                // Remove dragged item and insert at new position
+                const draggedAccountCopy = sortedAccounts.splice(draggedIndex, 1)[0];
+                sortedAccounts.splice(droppedIndex, 0, draggedAccountCopy);
+                
+                // Update ALL order values in Firebase to match new positions
                 const updatePromises = sortedAccounts.map((account, index) => {
                     return updateDoc(doc(db, 'accounts', account.id), {
                         order: index
@@ -2020,26 +2092,17 @@
             sortedAccounts.forEach((account, index) => {
                 const card = document.createElement('div');
                 card.className = 'account-card';
-                card.draggable = true;
                 card.dataset.accountId = account.id;
                 card.onclick = (e) => {
                     // Don't navigate if we just finished dragging
                     if (isDragging) {
                         return;
                     }
-                    // Only select if not clicking on buttons
-                    if (!e.target.closest('.icon-btn')) {
+                    // Only select if not clicking on buttons or drag handle
+                    if (!e.target.closest('.icon-btn') && !e.target.closest('.drag-handle')) {
                         selectAccount(account.id);
                     }
                 };
-                
-                // Drag and drop handlers
-                card.addEventListener('dragstart', handleDragStart);
-                card.addEventListener('dragend', handleDragEnd);
-                card.addEventListener('dragover', handleDragOver);
-                card.addEventListener('drop', handleDrop);
-                card.addEventListener('dragenter', handleDragEnter);
-                card.addEventListener('dragleave', handleDragLeave);
                 
                 let bottomHTML = '';
                 if (account.goal) {
@@ -2069,6 +2132,7 @@
                 }
                 
                 card.innerHTML = `
+                    <div class="drag-handle" title="Hold to drag">☰</div>
                     <div class="account-header">
                         <div class="account-info">
                             <h4>${account.emoji} ${account.name}</h4>
@@ -2080,6 +2144,20 @@
                     </div>
                     ${bottomHTML}
                 `;
+                
+                // Make only the drag handle draggable
+                const dragHandle = card.querySelector('.drag-handle');
+                dragHandle.draggable = true;
+                
+                // Attach drag handlers to the handle
+                dragHandle.addEventListener('dragstart', function(e) {
+                    handleDragStart.call(card, e);
+                });
+                card.addEventListener('dragend', handleDragEnd);
+                card.addEventListener('dragover', handleDragOver);
+                card.addEventListener('drop', handleDrop);
+                card.addEventListener('dragenter', handleDragEnter);
+                card.addEventListener('dragleave', handleDragLeave);
                 
                 list.appendChild(card);
             });
