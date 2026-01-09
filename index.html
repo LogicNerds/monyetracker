@@ -184,9 +184,17 @@
             color: white;
             margin-bottom: 25px;
             box-shadow: 0 4px 12px rgba(13, 148, 136, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
         }
 
-        .total-balance h2 {
+        .balance-left {
+            flex: 1;
+        }
+
+        .balance-left h2 {
             font-size: 0.9em;
             opacity: 0.9;
             margin-bottom: 10px;
@@ -194,10 +202,47 @@
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
         }
 
-        .total-balance .amount {
+        .balance-left .amount {
             font-size: 2.5em;
             font-weight: 700;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .balance-right {
+            text-align: right;
+            border-left: 1px solid rgba(255, 255, 255, 0.3);
+            padding-left: 20px;
+        }
+
+        .spending-label {
+            font-size: 0.75em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .spending-amount {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .spending-change {
+            font-size: 0.85em;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 5px;
+            opacity: 0.95;
+        }
+
+        .spending-change.up {
+            color: #fee2e2;
+        }
+
+        .spending-change.down {
+            color: #d1fae5;
         }
 
         /* Accounts */
@@ -971,7 +1016,25 @@
                 font-size: 1.6em;
             }
 
-            .total-balance .amount {
+            .total-balance {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+
+            .balance-right {
+                border-left: none;
+                border-top: 1px solid rgba(255, 255, 255, 0.3);
+                padding-left: 0;
+                padding-top: 15px;
+                text-align: center;
+            }
+
+            .spending-change {
+                justify-content: center;
+            }
+
+            .balance-left .amount {
                 font-size: 2em;
             }
 
@@ -1026,8 +1089,17 @@
 
         <div class="main-content" id="listView">
             <div class="total-balance">
-                <h2>Total Balance</h2>
-                <div class="amount" id="totalBalance">$0.00</div>
+                <div class="balance-left">
+                    <h2>Total Balance</h2>
+                    <div class="amount" id="totalBalance">$0.00</div>
+                </div>
+                <div class="balance-right">
+                    <div class="spending-label">Spent in Last 7 Days</div>
+                    <div class="spending-amount" id="weekSpending">$0.00</div>
+                    <div class="spending-change" id="spendingChange">
+                        <span id="changeText">--</span>
+                    </div>
+                </div>
             </div>
 
             <button class="add-account-btn" onclick="showAddAccountModal()">+ Add a Money Avatar</button>
@@ -1776,6 +1848,59 @@
         function updateTotalBalance() {
             const total = accounts.reduce((sum, acc) => sum + acc.balance, 0);
             document.getElementById('totalBalance').textContent = '$' + total.toFixed(2);
+            
+            updateSpendingStats();
+        }
+
+        function updateSpendingStats() {
+            const now = new Date();
+            const sevenDaysAgo = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
+            const fourteenDaysAgo = new Date(now.getTime() - (14 * 24 * 60 * 60 * 1000));
+
+            // Calculate spending for last 7 days
+            const lastWeekSpending = transactions
+                .filter(t => {
+                    const transDate = t.date?.toDate ? t.date.toDate() : new Date(t.date);
+                    return transDate >= sevenDaysAgo && transDate <= now && t.amount < 0;
+                })
+                .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+
+            // Calculate spending for previous 7 days (8-14 days ago)
+            const previousWeekSpending = transactions
+                .filter(t => {
+                    const transDate = t.date?.toDate ? t.date.toDate() : new Date(t.date);
+                    return transDate >= fourteenDaysAgo && transDate < sevenDaysAgo && t.amount < 0;
+                })
+                .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+
+            // Update spending amount
+            document.getElementById('weekSpending').textContent = '$' + lastWeekSpending.toFixed(2);
+
+            // Calculate change
+            const changeElement = document.getElementById('spendingChange');
+            const changeTextElement = document.getElementById('changeText');
+
+            if (previousWeekSpending === 0) {
+                changeTextElement.textContent = lastWeekSpending > 0 ? 'First week spending' : 'No spending yet';
+                changeElement.className = 'spending-change';
+            } else {
+                const dollarChange = lastWeekSpending - previousWeekSpending;
+                const percentChange = ((dollarChange / previousWeekSpending) * 100).toFixed(1);
+                
+                if (dollarChange > 0) {
+                    // Spending increased (bad)
+                    changeTextElement.textContent = `↑ $${Math.abs(dollarChange).toFixed(2)} (${Math.abs(percentChange)}%)`;
+                    changeElement.className = 'spending-change up';
+                } else if (dollarChange < 0) {
+                    // Spending decreased (good)
+                    changeTextElement.textContent = `↓ $${Math.abs(dollarChange).toFixed(2)} (${Math.abs(percentChange)}%)`;
+                    changeElement.className = 'spending-change down';
+                } else {
+                    // Same spending
+                    changeTextElement.textContent = 'Same as last week';
+                    changeElement.className = 'spending-change';
+                }
+            }
         }
 
         function updateAccountsList() {
