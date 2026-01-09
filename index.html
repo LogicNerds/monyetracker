@@ -258,10 +258,9 @@
             border-radius: 16px;
             padding: 20px;
             margin-bottom: 15px;
-            cursor: pointer;
+            cursor: grab;
             transition: all 0.2s;
             position: relative;
-            touch-action: none;
         }
 
         .account-card:hover {
@@ -1851,9 +1850,11 @@
 
         // UI updates
         let draggedElement = null;
+        let isDragging = false;
 
         function handleDragStart(e) {
             draggedElement = this;
+            isDragging = true;
             this.classList.add('dragging');
             e.dataTransfer.effectAllowed = 'move';
             e.dataTransfer.setData('text/html', this.innerHTML);
@@ -1866,6 +1867,11 @@
             document.querySelectorAll('.account-card').forEach(card => {
                 card.classList.remove('drag-over');
             });
+            
+            // Reset dragging flag after a brief delay to prevent click
+            setTimeout(() => {
+                isDragging = false;
+            }, 100);
             
             draggedElement = null;
         }
@@ -1889,6 +1895,9 @@
         }
 
         async function handleDrop(e) {
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
             if (e.stopPropagation) {
                 e.stopPropagation();
             }
@@ -2014,6 +2023,10 @@
                 card.draggable = true;
                 card.dataset.accountId = account.id;
                 card.onclick = (e) => {
+                    // Don't navigate if we just finished dragging
+                    if (isDragging) {
+                        return;
+                    }
                     // Only select if not clicking on buttons
                     if (!e.target.closest('.icon-btn')) {
                         selectAccount(account.id);
