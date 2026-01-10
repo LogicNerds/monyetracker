@@ -177,6 +177,27 @@
             padding: 20px 20px 80px 20px;
         }
 
+        .quick-start-link {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .quick-start-link a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95em;
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: inline-block;
+            transition: all 0.2s;
+        }
+
+        .quick-start-link a:hover {
+            background: var(--accent-bg);
+            transform: translateY(-1px);
+        }
+
         .total-balance {
             background: linear-gradient(135deg, var(--balance-start) 0%, var(--balance-end) 100%);
             border-radius: 16px;
@@ -1088,6 +1109,12 @@
         </div>
 
         <div class="main-content" id="listView">
+            <div class="quick-start-link">
+                <a href="https://www.myidk.app/my-money-quick-start" target="_blank" rel="noopener noreferrer">
+                    How to start tracking in under a minute
+                </a>
+            </div>
+
             <div class="total-balance">
                 <div class="balance-left">
                     <h2>Total Balance</h2>
