@@ -269,37 +269,6 @@
             transform: translateY(-2px);
         }
 
-        .account-card.dragging {
-            opacity: 0.5;
-        }
-
-        .drag-handle {
-            position: absolute;
-            left: -10px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: grab;
-            font-size: 1.5em;
-            color: var(--accent-primary);
-            opacity: 0.5;
-            transition: opacity 0.2s;
-            padding: 10px;
-            touch-action: none;
-        }
-
-        .drag-handle:hover {
-            opacity: 1;
-        }
-
-        .drag-handle:active {
-            cursor: grabbing;
-        }
-
-        .account-card.drag-over {
-            border-color: var(--accent-primary);
-            border-style: dashed;
-        }
-
         .account-card.selected {
             border-color: var(--accent-primary);
             background: var(--accent-bg);
@@ -1295,6 +1264,22 @@
         </div>
     </div>
 
+    <!-- Order Modal -->
+    <div id="orderModal" class="modal">
+        <div class="modal-content">
+            <h2>Change Order</h2>
+            <p style="color: #666; margin-bottom: 20px; font-size: 0.9em;">Lower numbers appear first in the list</p>
+            <div class="form-group">
+                <label>Order Position</label>
+                <input type="number" id="orderPosition" placeholder="1" min="1" step="1">
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeModal('orderModal')">Cancel</button>
+                <button class="modal-btn primary" onclick="setOrder()">Update Order</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Theme Modal -->
     <div id="themeModal" class="modal">
         <div class="modal-content">
@@ -1428,6 +1413,7 @@
         let currentTransactionType = null;
         let selectedEmojiValue = '💵';
         let goalAccountId = null;
+        let orderAccountId = null;
         let unsubscribeAccounts = null;
         let unsubscribeTransactions = null;
 
@@ -1442,6 +1428,8 @@
         window.deleteAccount = deleteAccount;
         window.showGoalModal = showGoalModal;
         window.setGoal = setGoal;
+        window.showOrderModal = showOrderModal;
+        window.setOrder = setOrder;
         window.showTransactionModal = showTransactionModal;
         window.addTransaction = addTransaction;
         window.showTransferModal = showTransferModal;
@@ -1768,6 +1756,59 @@
             }
         }
 
+        function showOrderModal(accountId, event) {
+            event.stopPropagation();
+            
+            orderAccountId = accountId;
+            const account = accounts.find(a => a.id === accountId);
+            
+            // Show current position (order + 1 for 1-based display)
+            document.getElementById('orderPosition').value = (account.order || 0) + 1;
+            document.getElementById('orderModal').classList.add('active');
+        }
+
+        async function setOrder() {
+            const newPosition = parseInt(document.getElementById('orderPosition').value);
+            
+            if (!newPosition || newPosition < 1) {
+                alert('Put in a valid position (1 or higher)!');
+                return;
+            }
+
+            try {
+                // Convert 1-based position to 0-based order
+                const newOrder = newPosition - 1;
+                
+                // Get all accounts sorted by current order
+                const sortedAccounts = [...accounts].sort((a, b) => (a.order || 0) - (b.order || 0));
+                
+                // Find the account being moved
+                const accountIndex = sortedAccounts.findIndex(a => a.id === orderAccountId);
+                if (accountIndex === -1) return;
+                
+                // Remove from current position
+                const [movedAccount] = sortedAccounts.splice(accountIndex, 1);
+                
+                // Insert at new position (capped at array length)
+                const insertIndex = Math.min(newOrder, sortedAccounts.length);
+                sortedAccounts.splice(insertIndex, 0, movedAccount);
+                
+                // Update all order values
+                const updatePromises = sortedAccounts.map((account, index) => {
+                    return updateDoc(doc(db, 'accounts', account.id), {
+                        order: index
+                    });
+                });
+                
+                await Promise.all(updatePromises);
+                
+                closeModal('orderModal');
+            } catch (error) {
+                console.error('Error setting order:', error);
+                alert('Failed to update order. Please try again.');
+            }
+        }
+
         // Transaction management
         function showTransactionModal(type) {
             if (!selectedAccount) return;
@@ -1912,108 +1953,6 @@
         }
 
         // UI updates
-        let draggedElement = null;
-        let isDragging = false;
-
-        function handleDragStart(e) {
-            draggedElement = this;
-            isDragging = true;
-            this.classList.add('dragging');
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/html', this.innerHTML);
-        }
-
-        function handleDragEnd(e) {
-            this.classList.remove('dragging');
-            
-            // Remove drag-over class from all cards
-            document.querySelectorAll('.account-card').forEach(card => {
-                card.classList.remove('drag-over');
-            });
-            
-            // Reset dragging flag after a brief delay to prevent click
-            setTimeout(() => {
-                isDragging = false;
-            }, 100);
-            
-            draggedElement = null;
-        }
-
-        function handleDragOver(e) {
-            if (e.preventDefault) {
-                e.preventDefault();
-            }
-            e.dataTransfer.dropEffect = 'move';
-            return false;
-        }
-
-        function handleDragEnter(e) {
-            if (this !== draggedElement) {
-                this.classList.add('drag-over');
-            }
-        }
-
-        function handleDragLeave(e) {
-            this.classList.remove('drag-over');
-        }
-
-        async function handleDrop(e) {
-            if (e.preventDefault) {
-                e.preventDefault();
-            }
-            if (e.stopPropagation) {
-                e.stopPropagation();
-            }
-            
-            if (draggedElement !== this) {
-                // Get all cards
-                const cards = Array.from(document.querySelectorAll('.account-card'));
-                const draggedIndex = cards.indexOf(draggedElement);
-                const droppedIndex = cards.indexOf(this);
-                
-                // Reorder accounts array
-                const draggedId = draggedElement.dataset.accountId;
-                const droppedId = this.dataset.accountId;
-                
-                // Update order in Firebase
-                await reorderAccounts(draggedId, droppedId, draggedIndex, droppedIndex);
-            }
-            
-            return false;
-        }
-
-        async function reorderAccounts(draggedId, droppedId, draggedIndex, droppedIndex) {
-            try {
-                // Sort current accounts by order (all should have order at this point due to migration)
-                const sortedAccounts = [...accounts].sort((a, b) => (a.order || 0) - (b.order || 0));
-                
-                // Find the actual accounts by ID
-                const draggedAccount = sortedAccounts.find(a => a.id === draggedId);
-                const droppedAccount = sortedAccounts.find(a => a.id === droppedId);
-                
-                if (!draggedAccount || !droppedAccount) {
-                    console.error('Could not find dragged or dropped account');
-                    return;
-                }
-                
-                // Remove dragged item and insert at new position
-                const draggedAccountCopy = sortedAccounts.splice(draggedIndex, 1)[0];
-                sortedAccounts.splice(droppedIndex, 0, draggedAccountCopy);
-                
-                // Update ALL order values in Firebase to match new positions
-                const updatePromises = sortedAccounts.map((account, index) => {
-                    return updateDoc(doc(db, 'accounts', account.id), {
-                        order: index
-                    });
-                });
-                
-                await Promise.all(updatePromises);
-            } catch (error) {
-                console.error('Error reordering accounts:', error);
-                alert('Failed to reorder avatars. Please try again.');
-            }
-        }
-
         function updateUI() {
             updateTotalBalance();
             updateAccountsList();
@@ -2039,7 +1978,16 @@
             // Calculate spending for last 7 days
             const lastWeekSpending = transactions
                 .filter(t => {
-                    const transDate = t.date?.toDate ? t.date.toDate() : new Date(t.date);
+                    // Handle serverTimestamp null case - use current time for just-added transactions
+                    let transDate;
+                    if (t.date?.toDate) {
+                        transDate = t.date.toDate();
+                    } else if (t.date) {
+                        transDate = new Date(t.date);
+                    } else {
+                        // Date is null (serverTimestamp not yet applied) - assume it's happening right now
+                        transDate = now;
+                    }
                     return transDate >= sevenDaysAgo && transDate <= now && t.amount < 0;
                 })
                 .reduce((sum, t) => sum + Math.abs(t.amount), 0);
@@ -2047,7 +1995,14 @@
             // Calculate spending for previous 7 days (8-14 days ago)
             const previousWeekSpending = transactions
                 .filter(t => {
-                    const transDate = t.date?.toDate ? t.date.toDate() : new Date(t.date);
+                    let transDate;
+                    if (t.date?.toDate) {
+                        transDate = t.date.toDate();
+                    } else if (t.date) {
+                        transDate = new Date(t.date);
+                    } else {
+                        transDate = now;
+                    }
                     return transDate >= fourteenDaysAgo && transDate < sevenDaysAgo && t.amount < 0;
                 })
                 .reduce((sum, t) => sum + Math.abs(t.amount), 0);
@@ -2094,12 +2049,8 @@
                 card.className = 'account-card';
                 card.dataset.accountId = account.id;
                 card.onclick = (e) => {
-                    // Don't navigate if we just finished dragging
-                    if (isDragging) {
-                        return;
-                    }
-                    // Only select if not clicking on buttons or drag handle
-                    if (!e.target.closest('.icon-btn') && !e.target.closest('.drag-handle')) {
+                    // Only select if not clicking on buttons
+                    if (!e.target.closest('.icon-btn')) {
                         selectAccount(account.id);
                     }
                 };
@@ -2132,32 +2083,18 @@
                 }
                 
                 card.innerHTML = `
-                    <div class="drag-handle" title="Hold to drag">☰</div>
                     <div class="account-header">
                         <div class="account-info">
                             <h4>${account.emoji} ${account.name}</h4>
                         </div>
                         <div class="account-actions">
+                            <button class="icon-btn" onclick="showOrderModal('${account.id}', event)" title="Change Order">#${(account.order || 0) + 1}</button>
                             <button class="icon-btn goal-btn" onclick="showGoalModal('${account.id}', event)" title="Set Goal">🎯</button>
                             <button class="icon-btn delete-btn" onclick="deleteAccount('${account.id}', event)" title="Delete">🗑️</button>
                         </div>
                     </div>
                     ${bottomHTML}
                 `;
-                
-                // Make only the drag handle draggable
-                const dragHandle = card.querySelector('.drag-handle');
-                dragHandle.draggable = true;
-                
-                // Attach drag handlers to the handle
-                dragHandle.addEventListener('dragstart', function(e) {
-                    handleDragStart.call(card, e);
-                });
-                card.addEventListener('dragend', handleDragEnd);
-                card.addEventListener('dragover', handleDragOver);
-                card.addEventListener('drop', handleDrop);
-                card.addEventListener('dragenter', handleDragEnter);
-                card.addEventListener('dragleave', handleDragLeave);
                 
                 list.appendChild(card);
             });
@@ -2174,8 +2111,23 @@
             const accountTransactions = transactions
                 .filter(t => t.accountId === selectedAccount)
                 .sort((a, b) => {
-                    const aDate = a.date?.toDate ? a.date.toDate() : new Date(a.date);
-                    const bDate = b.date?.toDate ? b.date.toDate() : new Date(b.date);
+                    // Handle serverTimestamp null case in sorting
+                    let aDate, bDate;
+                    if (a.date?.toDate) {
+                        aDate = a.date.toDate();
+                    } else if (a.date) {
+                        aDate = new Date(a.date);
+                    } else {
+                        aDate = new Date();
+                    }
+                    
+                    if (b.date?.toDate) {
+                        bDate = b.date.toDate();
+                    } else if (b.date) {
+                        bDate = new Date(b.date);
+                    } else {
+                        bDate = new Date();
+                    }
                     return bDate - aDate;
                 })
                 .slice(0, 10);
@@ -2195,7 +2147,15 @@
                                  transaction.type === 'transfer_in' ? 'Moved In' : 
                                  transaction.type === 'transfer_out' ? 'Moved Out' : 'Money Out';
                 
-                const date = transaction.date?.toDate ? transaction.date.toDate() : new Date(transaction.date);
+                // Handle serverTimestamp null case in display
+                let date;
+                if (transaction.date?.toDate) {
+                    date = transaction.date.toDate();
+                } else if (transaction.date) {
+                    date = new Date(transaction.date);
+                } else {
+                    date = new Date();
+                }
                 const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 
                 item.innerHTML = `
@@ -2224,8 +2184,23 @@
             const accountTransactions = transactions
                 .filter(t => t.accountId === selectedAccount)
                 .sort((a, b) => {
-                    const aDate = a.date?.toDate ? a.date.toDate() : new Date(a.date);
-                    const bDate = b.date?.toDate ? b.date.toDate() : new Date(b.date);
+                    // Handle serverTimestamp null case in sorting
+                    let aDate, bDate;
+                    if (a.date?.toDate) {
+                        aDate = a.date.toDate();
+                    } else if (a.date) {
+                        aDate = new Date(a.date);
+                    } else {
+                        aDate = new Date();
+                    }
+                    
+                    if (b.date?.toDate) {
+                        bDate = b.date.toDate();
+                    } else if (b.date) {
+                        bDate = new Date(b.date);
+                    } else {
+                        bDate = new Date();
+                    }
                     return bDate - aDate;
                 })
                 .slice(0, 30);
@@ -2245,7 +2220,15 @@
                                  transaction.type === 'transfer_in' ? 'Moved In' : 
                                  transaction.type === 'transfer_out' ? 'Moved Out' : 'Money Out';
                 
-                const date = transaction.date?.toDate ? transaction.date.toDate() : new Date(transaction.date);
+                // Handle serverTimestamp null case in display
+                let date;
+                if (transaction.date?.toDate) {
+                    date = transaction.date.toDate();
+                } else if (transaction.date) {
+                    date = new Date(transaction.date);
+                } else {
+                    date = new Date();
+                }
                 const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 
                 item.innerHTML = `
